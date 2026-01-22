@@ -1,0 +1,44 @@
+datasource db {
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum SpellSource {
+    SRD
+    CUSTOM
+}
+
+model Spell {
+    id                String      @id @default(cuid())
+    source            SpellSource
+    srdIndex          String?     @unique
+    name              String
+    desc              String[]
+    higherLevel       String[]    @default([])
+    range             String?
+    components        String[] @default([])
+    material          String?
+    ritual            Boolean     @default(false)
+    duration          String?
+    concentration     Boolean @default(false)
+    castingTime       String
+    level             Int
+    damageAtSlotLevel Json?
+    damageTypeIndex   String?
+    attackType        String?
+    schoolIndex       String
+    classIndexes      String[]    @default([])
+    subclassIndexes   String[]    @default([])
+    raw               Json?
+
+    @@index([name])
+    @@index([level])
+    @@index([schoolIndex])
+    @@index([ritual])
+    @@index([concentration])
+    @@index([classIndexes], type: Gin)
+    @@index([subclassIndexes], type: Gin)
+}
