@@ -12,16 +12,23 @@ const typeDefs = `#graphql
         classIndexes: [String!]!
     }
 
+    input SpellFilter {
+        name: String
+    }
+
     type Query {
-        spells: [Spell!]!
+        spells(filter: SpellFilter): [Spell!]!
     }
 `;
 
 const resolvers = {
     Query: {
-        spells: async () => {
+        spells: async (_: unknown, args: { filter?: { name?: string } }) => {
             try {
                 return await prisma.spell.findMany({
+                    where: args.filter?.name
+                        ? { name: { contains: args.filter.name, mode: 'insensitive' } }
+                        : undefined,
                     orderBy: { name: 'asc' },
                     select: {
                         id: true,
@@ -35,8 +42,8 @@ const resolvers = {
                 console.error(error);
                 throw error;
             }
-        }
-    }
+        },
+    },
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });

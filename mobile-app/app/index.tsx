@@ -2,7 +2,7 @@ import { useColorScheme } from 'react-native';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { ApolloProvider } from '@apollo/client/react';
 import { apolloClient } from './apolloClient';
-import SpellList from './components/SpellList';
+import SpellSearch from './components/SpellSearch';
 
 export default function Index() {
     const colorScheme = useColorScheme();
@@ -11,7 +11,7 @@ export default function Index() {
     return (
         <ApolloProvider client={apolloClient}>
             <PaperProvider theme={theme}>
-                <SpellList />
+                <SpellSearch />
             </PaperProvider>
         </ApolloProvider>
     );
