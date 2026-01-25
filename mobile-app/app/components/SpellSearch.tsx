@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, MD3Theme, Searchbar, useTheme } from 'react-native-paper';
+import { Button, Searchbar } from 'react-native-paper';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import SpellList from './SpellList';
+import { fantasyTokens } from '../theme/fantasyTheme';
 
 type SearchParams = {
     name?: string;
@@ -38,21 +39,24 @@ export default function SpellSearch() {
     if (error) console.error(`Error loading spells: ${error}`);
     const spells = data?.spells ?? [];
 
-    const theme = useTheme();
-    const themedStyles = useMemo(() => makeStyles(theme), [theme]);
-
     return (
-        <View style={themedStyles.container}>
+        <View style={styles.container}>
             <Searchbar
-                style={themedStyles.searchBar}
-                inputStyle={{ color: theme.colors.onSurface }}
-                iconColor={theme.colors.onSurfaceVariant}
-                placeholderTextColor={theme.colors.onSurfaceVariant}
+                style={styles.searchBar}
+                inputStyle={{ color: fantasyTokens.colors.inkDark, fontFamily: 'serif' }}
+                iconColor={fantasyTokens.colors.ember}
+                placeholderTextColor={fantasyTokens.colors.inkSoft}
                 placeholder="Search spells..."
                 onChangeText={(text) => setSearchParams((prev) => ({ ...prev, name: text }))}
                 value={searchParams.name || ''}
             />
-            <Button icon="filter" mode="outlined" onPress={() => {}} style={{ margin: 8 }}>
+            <Button
+                icon="filter"
+                mode="outlined"
+                onPress={() => {}}
+                style={styles.filterButton}
+                textColor={fantasyTokens.colors.parchment}
+            >
                 Filter
             </Button>
             <SpellList spells={spells} loading={loading} />
@@ -60,16 +64,20 @@ export default function SpellSearch() {
     );
 }
 
-function makeStyles(theme: MD3Theme) {
-    return StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: theme.colors.background,
-        },
-        searchBar: {
-            margin: 8,
-            marginBottom: 0,
-            backgroundColor: theme.colors.surface,
-        },
-    });
-}
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: fantasyTokens.colors.night,
+    },
+    searchBar: {
+        margin: fantasyTokens.spacing.md,
+        marginBottom: 0,
+        backgroundColor: fantasyTokens.colors.parchment,
+        borderWidth: 1,
+        borderColor: fantasyTokens.colors.gold,
+    },
+    filterButton: {
+        margin: fantasyTokens.spacing.md,
+        borderColor: fantasyTokens.colors.gold,
+    },
+});

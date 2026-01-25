@@ -1,7 +1,8 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { SpellQueryData } from './SpellSearch';
 import { ActivityIndicator, Divider, List, MD3Theme, useTheme } from 'react-native-paper';
-import { useMemo } from 'react';
+import { useRouter } from 'expo-router';
+import { fantasyTokens } from '../theme/fantasyTheme';
 
 type SpellListProps = {
     spells?: SpellQueryData[];
@@ -9,44 +10,46 @@ type SpellListProps = {
 };
 
 export default function SpellList({ spells, loading }: SpellListProps) {
-    const theme = useTheme();
-    const themedStyles = useMemo(() => makeStyles(theme), [theme]);
+    const router = useRouter();
 
     return loading ? (
-        <ActivityIndicator />
+        <View style={styles.listContent}>
+            <ActivityIndicator />
+        </View>
     ) : (
         <FlatList
             data={spells ?? []}
-            contentContainerStyle={themedStyles.listContent}
+            contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
                 <>
                     <List.Item
                         title={item.name}
-                        titleStyle={themedStyles.listItemTitle}
-                        style={themedStyles.listItem}
-                        onPress={() => {}}
+                        titleStyle={styles.listItemTitle}
+                        style={styles.listItem}
+                        onPress={() => router.push(`/spell/${item.id}`)}
                     />
-                    <Divider style={themedStyles.divider} />
+                    <Divider style={styles.divider} />
                 </>
             )}
         />
     );
 }
 
-function makeStyles(theme: MD3Theme) {
-    return StyleSheet.create({
-        listContent: {
-            backgroundColor: theme.colors.background,
-        },
-        listItem: {
-            backgroundColor: theme.colors.surface,
-        },
-        listItemTitle: {
-            fontSize: 18,
-            color: theme.colors.onSurface,
-        },
-        divider: {
-            backgroundColor: theme.colors.outlineVariant,
-        },
-    });
-}
+const styles = StyleSheet.create({
+    listContent: {
+        backgroundColor: fantasyTokens.colors.parchmentDeep,
+        paddingBottom: fantasyTokens.spacing.lg,
+        height: '100%',
+    },
+    listItem: {
+        backgroundColor: fantasyTokens.colors.parchmentDeep,
+    },
+    listItemTitle: {
+        fontSize: 18,
+        color: fantasyTokens.colors.inkDark,
+        fontFamily: 'serif',
+    },
+    divider: {
+        backgroundColor: fantasyTokens.colors.gold,
+    },
+});
