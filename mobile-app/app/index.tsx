@@ -1,18 +1,18 @@
-import { Text, View } from 'react-native';
-import { PaperProvider } from 'react-native-paper';
+import { useColorScheme } from 'react-native';
+import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
+import { ApolloProvider } from '@apollo/client/react';
+import { apolloClient } from './apolloClient';
+import SpellList from './components/SpellList';
 
 export default function Index() {
+    const colorScheme = useColorScheme();
+    const theme = colorScheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+
     return (
-        <PaperProvider>
-            <View
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <Text>Edit app/index.tsx to edit this screen.</Text>
-            </View>
-        </PaperProvider>
+        <ApolloProvider client={apolloClient}>
+            <PaperProvider theme={theme}>
+                <SpellList />
+            </PaperProvider>
+        </ApolloProvider>
     );
 }
