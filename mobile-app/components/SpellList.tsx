@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
-import { SpellQueryData } from './SpellSearch';
+import { SpellQueryData } from '../app';
 import { ActivityIndicator, Divider, List, MD3Theme, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '../theme/fantasyTheme';

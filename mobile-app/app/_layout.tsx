@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { ApolloProvider } from '@apollo/client/react';
 import apolloClient from './apolloClient';
-import { buildFantasyTheme } from './theme/fantasyTheme';
+import { buildFantasyTheme } from '../theme/fantasyTheme';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();

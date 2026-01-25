@@ -1,10 +1,10 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Chip, Divider, MD3Theme, Text, useTheme } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
-import { fantasyTokens } from '../theme/fantasyTheme';
+import { fantasyTokens } from '../../theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
-import { DetailRow, ParchmentPanel, RuneDivider } from '../components/FantasyPrimitives';
+import { DetailRow, ParchmentPanel, RuneDivider } from '../../components/FantasyPrimitives';
 
 const GET_SPELL = gql`
     query Spell($id: ID!) {
