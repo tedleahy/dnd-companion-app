@@ -1,11 +1,10 @@
 import { FlatList, StyleSheet, View } from 'react-native';
-import { SpellQueryData } from '../app';
-import { ActivityIndicator, Divider, List, MD3Theme, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Divider, List } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '../theme/fantasyTheme';
 
 type SpellListProps = {
-    spells?: SpellQueryData[];
+    spells?: Array<{ id: string; name: string }>;
     loading: boolean;
 };
 

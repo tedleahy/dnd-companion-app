@@ -5,6 +5,7 @@ import { fantasyTokens } from '../../theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { DetailRow, ParchmentPanel, RuneDivider } from '../../components/FantasyPrimitives';
+import { Spell } from '../../types/generated_graphql_types';
 
 const GET_SPELL = gql`
     query Spell($id: ID!) {
@@ -26,23 +27,6 @@ const GET_SPELL = gql`
         }
     }
 `;
-
-type Spell = {
-    id: string;
-    name: string;
-    level: number;
-    schoolIndex: string;
-    classIndexes: string[];
-    desc: string[];
-    higherLevel: string[];
-    range?: string | null;
-    components: string[];
-    material?: string | null;
-    ritual: boolean;
-    duration?: string | null;
-    concentration: boolean;
-    castingTime: string;
-};
 
 type SpellDetailsQueryData = {
     spell?: Spell;

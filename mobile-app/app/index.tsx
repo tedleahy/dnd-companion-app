@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Searchbar } from 'react-native-paper';
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
-import SpellList from '../components/SpellList';
-import { fantasyTokens } from '../theme/fantasyTheme';
+import SpellList from '@/components/SpellList';
+import { fantasyTokens } from '@/theme/fantasyTheme';
+import { gql } from '@apollo/client';
+import { SpellsQuery } from '@/types/generated_graphql_types';
 
 type SearchParams = {
     name?: string;
 };
 
-const GET_SPELLS = gql`
+const SEARCH_SPELLS = gql`
     query Spells($filter: SpellFilter) {
         spells(filter: $filter) {
             id
@@ -19,19 +20,10 @@ const GET_SPELLS = gql`
     }
 `;
 
-export type SpellQueryData = {
-    id: string;
-    name: string;
-};
-
-type SpellsQueryData = {
-    spells: SpellQueryData[];
-};
-
 export default function SpellSearch() {
     const [searchParams, setSearchParams] = useState<SearchParams>({});
 
-    const { data, loading, error } = useQuery<SpellsQueryData>(GET_SPELLS, {
+    const { data, loading, error } = useQuery<SpellsQuery>(SEARCH_SPELLS, {
         variables: {
             filter: searchParams.name ? { name: searchParams.name } : undefined,
         },
