@@ -2,34 +2,9 @@ import 'dotenv/config'
 import prisma from './prisma/prisma';
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { loadFilesSync } from '@graphql-tools/load-files';
 
-const typeDefs = `#graphql
-    type Spell {
-        id: ID!
-        name: String!
-        level: Int!
-        schoolIndex: String!
-        classIndexes: [String!]!
-        desc: [String!]!
-        higherLevel: [String!]!
-        range: String
-        components: [String!]!
-        material: String
-        ritual: Boolean!
-        duration: String
-        concentration: Boolean!
-        castingTime: String!
-    }
-
-    input SpellFilter {
-        name: String
-    }
-
-    type Query {
-        spells(filter: SpellFilter): [Spell!]!
-        spell(id: ID!): Spell
-    }
-`;
+const typeDefs = loadFilesSync('schema.graphql');
 
 const resolvers = {
     Query: {

@@ -1,0 +1,25 @@
+type Spell {
+    id: ID!
+    name: String!
+    level: Int!
+    schoolIndex: String!
+    classIndexes: [String!]!
+    desc: [String!]!
+    higherLevel: [String!]!
+    range: String
+    components: [String!]!
+    material: String
+    ritual: Boolean!
+    duration: String
+    concentration: Boolean!
+    castingTime: String!
+}
+
+input SpellFilter {
+    name: String
+}
+
+type Query {
+    spells(filter: SpellFilter): [Spell!]!
+    spell(id: ID!): Spell
+}
