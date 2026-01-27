@@ -19,11 +19,11 @@ model Spell {
     desc              String[]
     higherLevel       String[]    @default([])
     range             String?
-    components        String[] @default([])
+    components        String[]    @default([])
     material          String?
     ritual            Boolean     @default(false)
     duration          String?
-    concentration     Boolean @default(false)
+    concentration     Boolean     @default(false)
     castingTime       String
     level             Int
     damageAtSlotLevel Json?
