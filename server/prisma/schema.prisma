@@ -16,14 +16,14 @@ model Spell {
     source            SpellSource
     srdIndex          String?     @unique
     name              String
-    desc              String[]
+    description       String[]
     higherLevel       String[]    @default([])
     range             String?
-    components        String[] @default([])
+    components        String[]    @default([])
     material          String?
     ritual            Boolean     @default(false)
     duration          String?
-    concentration     Boolean @default(false)
+    concentration     Boolean     @default(false)
     castingTime       String
     level             Int
     damageAtSlotLevel Json?
@@ -41,4 +41,44 @@ model Spell {
     @@index([concentration])
     @@index([classIndexes], type: Gin)
     @@index([subclassIndexes], type: Gin)
+}
+
+model AbilityScore {
+    id             String         @id @default(cuid())
+    source         SpellSource
+    srdIndex       String?        @unique
+    name           String
+    fullName       String
+    description    String[]
+    skillIndexes   String[]
+    abilityBonuses AbilityBonus[]
+}
+
+model Race {
+    id                  String         @id @default(cuid())
+    source              SpellSource
+    srdIndex            String?        @unique
+    name                String
+    speed               Int
+    alignment           String
+    age                 String
+    size                String
+    sizeDescription     String
+    languageDescription String
+    languageIndexes     String[]
+    traitIndexes        String[]
+    subraceIndexes      String[]
+    abilityBonuses      AbilityBonus[]
+}
+
+// Join table between race and ability score, storing the bonus to that score
+// that the race receieves
+model AbilityBonus {
+    race           Race         @relation(fields: [raceId], references: [id])
+    raceId         String
+    abilityScore   AbilityScore @relation(fields: [abilityScoreId], references: [id])
+    abilityScoreId String
+    bonus          Int
+
+    @@id([raceId, abilityScoreId])
 }
