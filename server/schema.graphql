@@ -4,7 +4,7 @@ type Spell {
     level: Int!
     schoolIndex: String!
     classIndexes: [String!]!
-    desc: [String!]!
+    description: [String!]!
     higherLevel: [String!]!
     range: String
     components: [String!]!

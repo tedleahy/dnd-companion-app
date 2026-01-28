@@ -15,7 +15,7 @@ const GET_SPELL = gql`
             level
             schoolIndex
             classIndexes
-            desc
+            description
             higherLevel
             range
             components
@@ -59,7 +59,7 @@ export default function SpellDetails() {
 
     const {
         name,
-        desc,
+        description,
         higherLevel,
         range,
         components,
@@ -73,7 +73,6 @@ export default function SpellDetails() {
     const componentsLabel = material
         ? `${components.join(', ')} (${material})`
         : components.join(', ');
-    const description = desc.join('\n\n');
 
     return (
         <ScrollView style={styles.page} contentContainerStyle={styles.content}>
@@ -104,12 +103,12 @@ export default function SpellDetails() {
 
             <ParchmentPanel style={styles.detailPanel} elevation={1}>
                 <Text style={styles.sectionTitle}>Description</Text>
-                <Text style={styles.body}>{description}</Text>
+                <Text style={styles.body}>{description.join('\n\n')}</Text>
                 <Divider style={styles.divider} />
                 {higherLevel.length > 0 && (
                     <>
                         <Text style={styles.sectionTitle}>At Higher Levels</Text>
-                        <Text style={styles.body}>{higherLevel.join("\n\n")}</Text>
+                        <Text style={styles.body}>{higherLevel.join('\n\n')}</Text>
                     </>
                 )}
             </ParchmentPanel>
