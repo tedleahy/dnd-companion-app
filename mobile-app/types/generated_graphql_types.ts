@@ -36,7 +36,7 @@ export type Spell = {
   classIndexes: Array<Scalars['String']['output']>;
   components: Array<Scalars['String']['output']>;
   concentration: Scalars['Boolean']['output'];
-  desc: Array<Scalars['String']['output']>;
+  description: Array<Scalars['String']['output']>;
   duration?: Maybe<Scalars['String']['output']>;
   higherLevel: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -64,4 +64,4 @@ export type SpellQueryVariables = Exact<{
 }>;
 
 
-export type SpellQuery = { __typename?: 'Query', spell?: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, desc: Array<string>, higherLevel: Array<string>, range?: string | null, components: Array<string>, material?: string | null, ritual: boolean, duration?: string | null, concentration: boolean, castingTime: string } | null };
+export type SpellQuery = { __typename?: 'Query', spell?: { __typename?: 'Spell', id: string, name: string, level: number, schoolIndex: string, classIndexes: Array<string>, description: Array<string>, higherLevel: Array<string>, range?: string | null, components: Array<string>, material?: string | null, ritual: boolean, duration?: string | null, concentration: boolean, castingTime: string } | null };
