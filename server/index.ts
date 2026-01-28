@@ -38,7 +38,7 @@ const resolvers = {
                         level: true,
                         schoolIndex: true,
                         classIndexes: true,
-                        desc: true,
+                        description: true,
                         higherLevel: true,
                         range: true,
                         components: true,
