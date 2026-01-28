@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { Prisma, SpellSource } from '@prisma/client';
 import prisma from '../prisma';
 
@@ -35,7 +34,7 @@ function toSpellRecord(spell: Spell) {
         source: SpellSource.SRD,
         srdIndex: spell.index,
         name: spell.name,
-        desc: spell.desc,
+        description: spell.desc,
         higherLevel: spell.higher_level ?? [],
         range: spell.range,
         components: spell.components,
@@ -60,12 +59,13 @@ function toSpellRecord(spell: Spell) {
 
 export default async function seedSpells() {
     try {
-        const jsonPath = new URL('../../../srd-json-files/5e-SRD-Spells.json', import.meta.url)
-            .pathname;
-        const spells = (await Bun.file(jsonPath).json()) as Spell[];
-        const records = spells.map(toSpellRecord);
+        const relativeFilePath = '../../../srd-json-files/5e-SRD-Spells.json';
+        const filePath = new URL(relativeFilePath, import.meta.url).pathname;
+        const spells = (await Bun.file(filePath).json()) as Spell[];
 
         console.log(`Loaded ${spells.length} spells from SRD JSON.`);
+
+        const records = spells.map(toSpellRecord);
 
         const result = await prisma.spell.createMany({
             data: records,
