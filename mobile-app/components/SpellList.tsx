@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     listContent: {
         backgroundColor: fantasyTokens.colors.parchmentDeep,
         paddingBottom: fantasyTokens.spacing.lg,
-        height: '100%',
     },
     listItem: {
         backgroundColor: fantasyTokens.colors.parchmentDeep,

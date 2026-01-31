@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Searchbar } from 'react-native-paper';
+import { useAuth } from '@clerk/clerk-expo';
 import { useQuery } from '@apollo/client/react';
 import SpellList from '@/components/SpellList';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -22,6 +23,7 @@ const SEARCH_SPELLS = gql`
 
 export default function SpellSearch() {
     const [searchParams, setSearchParams] = useState<SearchParams>({});
+    const { signOut } = useAuth();
 
     const { data, loading, error } = useQuery<SpellsQuery>(SEARCH_SPELLS, {
         variables: {
@@ -33,6 +35,14 @@ export default function SpellSearch() {
 
     return (
         <View style={styles.container}>
+            <Button
+                mode="text"
+                onPress={() => signOut()}
+                style={styles.signOutButton}
+                textColor={fantasyTokens.colors.parchment}
+            >
+                Sign out
+            </Button>
             <Searchbar
                 style={styles.searchBar}
                 inputStyle={{ color: fantasyTokens.colors.inkDark, fontFamily: 'serif' }}
@@ -71,5 +81,10 @@ const styles = StyleSheet.create({
     filterButton: {
         margin: fantasyTokens.spacing.md,
         borderColor: fantasyTokens.colors.gold,
+    },
+    signOutButton: {
+        alignSelf: 'flex-end',
+        margin: fantasyTokens.spacing.md,
+        marginBottom: 0,
     },
 });
