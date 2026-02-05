@@ -6,6 +6,7 @@ import SpellList from '@/components/SpellList';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { gql } from '@apollo/client';
 import { SpellsQuery } from '@/types/generated_graphql_types';
+import { supabase } from '@/lib/supabase';
 
 type SearchParams = {
     name?: string;
@@ -19,6 +20,20 @@ const SEARCH_SPELLS = gql`
         }
     }
 `;
+
+async function testSignupAndLogin() {
+    const email = `test-${Date.now()}@example.com`;
+    const password = 'password123';
+
+    const signUp = await supabase.auth.signUp({ email, password });
+    console.log('signUp:', signUp);
+
+    const signIn = await supabase.auth.signInWithPassword({ email, password });
+    console.log('signIn:', signIn);
+
+    const session = await supabase.auth.getSession();
+    console.log('session:', session);
+}
 
 export default function SpellSearch() {
     const [searchParams, setSearchParams] = useState<SearchParams>({});
@@ -45,7 +60,8 @@ export default function SpellSearch() {
             <Button
                 icon="filter"
                 mode="outlined"
-                onPress={() => {}}
+                // onPress={() => {}}
+                onPress={testSignupAndLogin}
                 style={styles.filterButton}
                 textColor={fantasyTokens.colors.parchment}
             >
