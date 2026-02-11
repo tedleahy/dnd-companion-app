@@ -4,7 +4,7 @@ import { Button, Card, Divider, HelperText, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
-import { styles } from './_authStyles';
+import { styles } from '../../styles/authStyles';
 
 export default function SignUp() {
     const [email, setEmail] = useState('');

@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
 import { supabase } from '@/lib/supabase';
-import { styles } from './_authStyles';
+import { styles } from '../../styles/authStyles';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
