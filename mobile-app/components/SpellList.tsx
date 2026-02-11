@@ -25,7 +25,7 @@ export default function SpellList({ spells, loading }: SpellListProps) {
                         title={item.name}
                         titleStyle={styles.listItemTitle}
                         style={styles.listItem}
-                        onPress={() => router.push(`/spell/${item.id}`)}
+                        onPress={() => router.push(`/spells/${item.id}`)}
                     />
                     <Divider style={styles.divider} />
                 </>
