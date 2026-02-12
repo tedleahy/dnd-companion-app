@@ -1,22 +1,47 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Button, Card, Divider, HelperText, Text } from 'react-native-paper';
+import { Button, Card, Divider, HelperText, Snackbar, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import TextField from '@/components/TextField';
 import { styles } from '../../styles/authStyles';
+import { supabase } from '@/lib/supabase';
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
 
+    const [showSignUpFailed, setShowSignUpFailed] = useState(false);
+
     const passwordsMatch = password.length > 0 && password === confirmPassword;
+
+    async function handleSignUp() {
+        if (!email || !passwordsMatch) return;
+
+        await supabase.auth.signUp({ email, password });
+        const { data } = await supabase.auth.getSession();
+
+        if (!data.session) {
+            setShowSignUpFailed(true);
+            return;
+        }
+
+        router.replace('/');
+    }
 
     return (
         <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+            <Snackbar
+                visible={showSignUpFailed}
+                onDismiss={() => setShowSignUpFailed(false)}
+                onIconPress={() => setShowSignUpFailed(false)}
+                wrapperStyle={styles.snackbarWrapper}
+            >
+                Sign up FAILED :( pls try again later xx
+            </Snackbar>
+
             <View style={styles.header}>
                 <Text variant="headlineMedium" style={styles.title}>
                     Sign up
@@ -39,8 +64,6 @@ export default function SignUp() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                     />
-
-                    <TextField label="Name" value={username} onChangeText={setUsername} />
 
                     <TextField
                         label="Password"
@@ -69,7 +92,7 @@ export default function SignUp() {
                         contentStyle={styles.primaryButtonContent}
                         buttonColor={fantasyTokens.colors.crimson}
                         textColor={fantasyTokens.colors.parchment}
-                        onPress={() => {}}
+                        onPress={handleSignUp}
                     >
                         Create Account
                     </Button>

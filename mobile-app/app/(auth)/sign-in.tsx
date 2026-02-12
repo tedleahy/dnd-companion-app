@@ -17,16 +17,12 @@ export default function SignIn() {
         if (!email || !password) return;
 
         await supabase.auth.signInWithPassword({ email, password });
-
         const { data } = await supabase.auth.getSession();
 
         if (!data.session) {
             setInvalidLogin(true);
             return;
         }
-
-        const token = data.session?.access_token;
-        if (!token) throw new Error('No access token');
 
         router.replace('/');
     }

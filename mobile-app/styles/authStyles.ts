@@ -55,4 +55,8 @@ export const styles = StyleSheet.create({
     errorText: {
         color: fantasyTokens.colors.crimson,
     },
+    snackbarWrapper: {
+        flex: 1,
+        alignSelf: 'center',
+    },
 });
