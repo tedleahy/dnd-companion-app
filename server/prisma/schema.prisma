@@ -33,6 +33,7 @@ model Spell {
     classIndexes      String[]    @default([])
     subclassIndexes   String[]    @default([])
     raw               Json?
+    spellLists        SpellListSpell[]
 
     @@index([name])
     @@index([level])
@@ -81,4 +82,24 @@ model AbilityBonus {
     bonus          Int
 
     @@id([raceId, abilityScoreId])
+}
+
+model SpellList {
+    id          String           @id @default(cuid())
+    name        String
+    ownerUserId String
+    createdAt   DateTime         @default(now())
+    spells      SpellListSpell[]
+
+    @@index([ownerUserId])
+}
+
+model SpellListSpell {
+    spellList   SpellList @relation(fields: [spellListId], references: [id], onDelete: Cascade)
+    spellListId String
+    spell       Spell     @relation(fields: [spellId], references: [id], onDelete: Cascade)
+    spellId     String
+    addedAt     DateTime  @default(now())
+
+    @@id([spellListId, spellId])
 }

@@ -6,3 +6,5 @@ generates:
       - typescript-resolvers
     config:
       contextType: ./index#Context
+      mappers:
+        SpellList: "@prisma/client#SpellList as PrismaSpellList"

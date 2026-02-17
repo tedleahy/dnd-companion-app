@@ -1,5 +1,6 @@
-import { GraphQLResolveInfo } from 'graphql';
-import { Context } from './index';
+import { type GraphQLResolveInfo } from 'graphql';
+import { type SpellList as PrismaSpellList } from '@prisma/client';
+import { type Context } from '..';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -19,13 +20,33 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addSpellToList: SpellList;
   createSpellList: SpellList;
+  deleteSpellList: Scalars['Boolean']['output'];
+  removeSpellFromList: SpellList;
   renameSpellList: Scalars['Boolean']['output'];
+};
+
+
+export type MutationAddSpellToListArgs = {
+  spellId: Scalars['ID']['input'];
+  spellListId: Scalars['ID']['input'];
 };
 
 
 export type MutationCreateSpellListArgs = {
   name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteSpellListArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveSpellFromListArgs = {
+  spellId: Scalars['ID']['input'];
+  spellListId: Scalars['ID']['input'];
 };
 
 
@@ -70,6 +91,8 @@ export type Spell = {
 };
 
 export type SpellFilter = {
+  classes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  levels?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -77,6 +100,7 @@ export type SpellList = {
   __typename?: 'SpellList';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  spells: Array<Spell>;
 };
 
 
@@ -157,7 +181,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   Spell: ResolverTypeWrapper<Spell>;
   SpellFilter: SpellFilter;
-  SpellList: ResolverTypeWrapper<SpellList>;
+  SpellList: ResolverTypeWrapper<PrismaSpellList>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 };
 
@@ -170,12 +194,15 @@ export type ResolversParentTypes = {
   Query: {};
   Spell: Spell;
   SpellFilter: SpellFilter;
-  SpellList: SpellList;
+  SpellList: PrismaSpellList;
   String: Scalars['String']['output'];
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addSpellToList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationAddSpellToListArgs, 'spellId' | 'spellListId'>>;
   createSpellList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationCreateSpellListArgs, 'name'>>;
+  deleteSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSpellListArgs, 'id'>>;
+  removeSpellFromList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationRemoveSpellFromListArgs, 'spellId' | 'spellListId'>>;
   renameSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRenameSpellListArgs, 'id' | 'name'>>;
 };
 
@@ -206,6 +233,7 @@ export type SpellResolvers<ContextType = Context, ParentType extends ResolversPa
 export type SpellListResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SpellList'] = ResolversParentTypes['SpellList']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
