@@ -94,6 +94,7 @@ export type SpellFilter = {
   classes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   levels?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   name?: InputMaybe<Scalars['String']['input']>;
+  ritual?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type SpellList = {
