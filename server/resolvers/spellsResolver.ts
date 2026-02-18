@@ -11,10 +11,24 @@ export default async function spellsResolver(
     requireUser(ctx);
 
     try {
+        const filter = args.filter;
+        const where: Record<string, unknown> = {};
+
+        if (filter?.name) {
+            where.name = { contains: filter.name, mode: 'insensitive' };
+        }
+        if (filter?.levels && filter.levels.length > 0) {
+            where.level = { in: filter.levels };
+        }
+        if (filter?.classes && filter.classes.length > 0) {
+            where.classIndexes = { hasSome: filter.classes };
+        }
+        if (filter?.ritual != null) {
+            where.ritual = filter.ritual;
+        }
+
         return await prisma.spell.findMany({
-            where: args.filter?.name
-                ? { name: { contains: args.filter.name, mode: 'insensitive' } }
-                : undefined,
+            where,
             orderBy: { name: 'asc' },
             select: {
                 id: true,

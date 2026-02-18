@@ -19,6 +19,7 @@ input SpellFilter {
     name: String
     levels: [Int]
     classes: [String]
+    ritual: Boolean
 }
 
 type SpellList {
