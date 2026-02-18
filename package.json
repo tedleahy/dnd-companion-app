@@ -1,0 +1,10 @@
+{
+    "name": "dnd-companion-app",
+    "private": true,
+    "scripts": {
+        "server:dev": "cd server && bun run dev",
+        "server:codegen": "cd server && bun run codegen",
+        "app:start": "cd mobile-app && yarn run start",
+        "app:codegen": "cd mobile-app && yarn run codegen"
+    }
+}
