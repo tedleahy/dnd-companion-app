@@ -14,8 +14,46 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  addSpellToList: SpellList;
+  createSpellList: SpellList;
+  deleteSpellList: Scalars['Boolean']['output'];
+  removeSpellFromList: SpellList;
+  renameSpellList: Scalars['Boolean']['output'];
+};
+
+
+export type MutationAddSpellToListArgs = {
+  spellId: Scalars['ID']['input'];
+  spellListId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateSpellListArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteSpellListArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveSpellFromListArgs = {
+  spellId: Scalars['ID']['input'];
+  spellListId: Scalars['ID']['input'];
+};
+
+
+export type MutationRenameSpellListArgs = {
+  id: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  currentUserSpellLists: Array<SpellList>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
 };
@@ -49,8 +87,29 @@ export type Spell = {
 };
 
 export type SpellFilter = {
+  classes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  levels?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type SpellList = {
+  __typename?: 'SpellList';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  spells: Array<Spell>;
+};
+
+export type CurrentUserSpellListsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserSpellListsQuery = { __typename?: 'Query', currentUserSpellLists: Array<{ __typename?: 'SpellList', id: string, name: string }> };
+
+export type CreateSpellListMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+}>;
+
+
+export type CreateSpellListMutation = { __typename?: 'Mutation', createSpellList: { __typename?: 'SpellList', id: string, name: string } };
 
 export type SpellsQueryVariables = Exact<{
   filter?: InputMaybe<SpellFilter>;
@@ -58,6 +117,39 @@ export type SpellsQueryVariables = Exact<{
 
 
 export type SpellsQuery = { __typename?: 'Query', spells: Array<{ __typename?: 'Spell', id: string, name: string }> };
+
+export type SpellListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SpellListQuery = { __typename?: 'Query', currentUserSpellLists: Array<{ __typename?: 'SpellList', id: string, name: string, spells: Array<{ __typename?: 'Spell', id: string, name: string }> }> };
+
+export type RenameSpellListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
+}>;
+
+
+export type RenameSpellListMutation = { __typename?: 'Mutation', renameSpellList: boolean };
+
+export type DeleteSpellListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSpellListMutation = { __typename?: 'Mutation', deleteSpellList: boolean };
+
+export type SpellDetailListsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SpellDetailListsQuery = { __typename?: 'Query', currentUserSpellLists: Array<{ __typename?: 'SpellList', id: string, name: string }> };
+
+export type AddSpellToListMutationVariables = Exact<{
+  spellListId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+}>;
+
+
+export type AddSpellToListMutation = { __typename?: 'Mutation', addSpellToList: { __typename?: 'SpellList', id: string, spells: Array<{ __typename?: 'Spell', id: string, name: string }> } };
 
 export type SpellQueryVariables = Exact<{
   id: Scalars['ID']['input'];

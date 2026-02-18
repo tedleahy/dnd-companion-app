@@ -17,9 +17,26 @@ type Spell {
 
 input SpellFilter {
     name: String
+    levels: [Int]
+    classes: [String]
+}
+
+type SpellList {
+    id: ID!
+    name: String!
+    spells: [Spell!]!
 }
 
 type Query {
     spells(filter: SpellFilter): [Spell!]!
     spell(id: ID!): Spell
+    currentUserSpellLists: [SpellList!]!
+}
+
+type Mutation {
+    createSpellList(name: String!): SpellList!
+    renameSpellList(id: ID!, name: String!): Boolean!
+    deleteSpellList(id: ID!): Boolean!
+    addSpellToList(spellListId: ID!, spellId: ID!): SpellList!
+    removeSpellFromList(spellListId: ID!, spellId: ID!): SpellList!
 }

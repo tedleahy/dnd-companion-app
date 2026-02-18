@@ -1,15 +1,15 @@
 import 'dotenv/config';
-import prisma from './prisma/prisma';
 import { ApolloServer } from '@apollo/server';
 import {
     startStandaloneServer,
     type StandaloneServerContextFunctionArgument,
 } from '@apollo/server/standalone';
 import { loadFilesSync } from '@graphql-tools/load-files';
-import { getUserIdFromAuthHeader, requireUser } from './lib/auth';
+import { getUserIdFromAuthHeader } from './lib/auth';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
+import * as spellListResolvers from './resolvers/spellListResolvers';
 
 const typeDefs = loadFilesSync('schema.graphql');
 
@@ -31,44 +31,20 @@ const resolvers: Resolvers = {
     Query: {
         spells: spellsResolver,
         spell: spellResolver,
-        currentUserSpellLists: async (_parent, _args, ctx) => {
-            const userId = requireUser(ctx);
-
-            return prisma.spellList.findMany({
-                where: { ownerUserId: userId },
-                orderBy: { createdAt: 'asc' },
-            });
-        },
+        currentUserSpellLists: spellListResolvers.currentUserLists,
     },
 
     Mutation: {
-        createSpellList: async (_parent, { name }, ctx) => {
-            const userId = requireUser(ctx);
+        createSpellList: spellListResolvers.create,
+        renameSpellList: spellListResolvers.rename,
+        deleteSpellList: spellListResolvers.destroy,
+        addSpellToList: spellListResolvers.addSpellToList,
+        removeSpellFromList: spellListResolvers.removeSpellFromList,
+    },
 
-            return await prisma.spellList.create({
-                data: {
-                    name,
-                    ownerUserId: userId,
-                }
-            })
-        },
-
-        renameSpellList: async (_parent, { id, name }, ctx) => {
-            const userId = requireUser(ctx);
-
-            const result = await prisma.spellList.updateMany({
-                where: {
-                    id,
-                    ownerUserId: userId,
-                },
-                data: { name },
-            });
-
-            if (result.count === 0) throw new Error('Spell List not found.');
-
-            return true;
-        },
-    }
+    SpellList: {
+        spells: spellListResolvers.spellListSpells,
+    },
 };
 
 const server = new ApolloServer<Context>({ typeDefs, resolvers });
