@@ -15,6 +15,7 @@ Backend (API)
 - Using Bun, not node/npm
 - Apollo Server (GraphQL)
 - Database: PostgreSQL + Prisma ORM
+- Prisma commands (migrate, generate, seed) must be run via root package.json scripts (e.g. `bun db:migrate -- <name>`, `bun db:generate`). Running `bunx prisma` directly won't find the schema due to the prisma.config.ts setup.
 
 Data strategy
 - Day 1: import SRD JSON files (e.g. 5e-SRD-Spells.json, in the srd-json-files directory) into Postgres.
