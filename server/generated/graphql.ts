@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { SpellList as PrismaSpellList } from '@prisma/client';
+import { SpellList as PrismaSpellList, Character as PrismaCharacter, CharacterStats as PrismaCharacterStats } from '@prisma/client';
 import { Context } from './index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -18,13 +18,200 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AbilityScores = {
+  __typename?: 'AbilityScores';
+  charisma: Scalars['Int']['output'];
+  constitution: Scalars['Int']['output'];
+  dexterity: Scalars['Int']['output'];
+  intelligence: Scalars['Int']['output'];
+  strength: Scalars['Int']['output'];
+  wisdom: Scalars['Int']['output'];
+};
+
+export type AbilityScoresInput = {
+  charisma: Scalars['Int']['input'];
+  constitution: Scalars['Int']['input'];
+  dexterity: Scalars['Int']['input'];
+  intelligence: Scalars['Int']['input'];
+  strength: Scalars['Int']['input'];
+  wisdom: Scalars['Int']['input'];
+};
+
+export type Attack = {
+  __typename?: 'Attack';
+  attackBonus: Scalars['String']['output'];
+  damage: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type Character = {
+  __typename?: 'Character';
+  ac: Scalars['Int']['output'];
+  alignment: Scalars['String']['output'];
+  attacks: Array<Attack>;
+  background: Scalars['String']['output'];
+  class: Scalars['String']['output'];
+  conditions: Array<Scalars['String']['output']>;
+  features: Array<CharacterFeature>;
+  id: Scalars['ID']['output'];
+  initiative: Scalars['Int']['output'];
+  inspiration: Scalars['Boolean']['output'];
+  inventory: Array<InventoryItem>;
+  level: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  preparedSpells: Array<CharacterPreparedSpell>;
+  proficiencyBonus: Scalars['Int']['output'];
+  race: Scalars['String']['output'];
+  speed: Scalars['Int']['output'];
+  spellAttackBonus?: Maybe<Scalars['Int']['output']>;
+  spellSaveDC?: Maybe<Scalars['Int']['output']>;
+  spellSlots: Array<SpellSlot>;
+  spellcastingAbility?: Maybe<Scalars['String']['output']>;
+  stats?: Maybe<CharacterStats>;
+  subclass?: Maybe<Scalars['String']['output']>;
+};
+
+export type CharacterFeature = {
+  __typename?: 'CharacterFeature';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  recharge?: Maybe<Scalars['String']['output']>;
+  source: Scalars['String']['output'];
+  usesMax?: Maybe<Scalars['Int']['output']>;
+  usesRemaining?: Maybe<Scalars['Int']['output']>;
+};
+
+export type CharacterPreparedSpell = {
+  __typename?: 'CharacterPreparedSpell';
+  prepared: Scalars['Boolean']['output'];
+  spell: Spell;
+};
+
+export type CharacterStats = {
+  __typename?: 'CharacterStats';
+  abilityScores: AbilityScores;
+  currency: Currency;
+  deathSaves: DeathSaves;
+  hitDice: HitDice;
+  hp: Hp;
+  id: Scalars['ID']['output'];
+  savingThrowProficiencies: Array<Scalars['String']['output']>;
+  skillProficiencies: SkillProficiencies;
+  traits: Traits;
+};
+
+export type CreateCharacterInput = {
+  abilityScores: AbilityScoresInput;
+  ac: Scalars['Int']['input'];
+  alignment: Scalars['String']['input'];
+  background: Scalars['String']['input'];
+  class: Scalars['String']['input'];
+  currency?: InputMaybe<CurrencyInput>;
+  hitDice: HitDiceInput;
+  hp: HpInput;
+  initiative: Scalars['Int']['input'];
+  level: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  proficiencyBonus: Scalars['Int']['input'];
+  race: Scalars['String']['input'];
+  savingThrowProficiencies?: InputMaybe<Array<Scalars['String']['input']>>;
+  skillProficiencies: SkillProficienciesInput;
+  speed: Scalars['Int']['input'];
+  spellAttackBonus?: InputMaybe<Scalars['Int']['input']>;
+  spellSaveDC?: InputMaybe<Scalars['Int']['input']>;
+  spellcastingAbility?: InputMaybe<Scalars['String']['input']>;
+  subclass?: InputMaybe<Scalars['String']['input']>;
+  traits?: InputMaybe<TraitsInput>;
+};
+
+export type Currency = {
+  __typename?: 'Currency';
+  cp: Scalars['Int']['output'];
+  ep: Scalars['Int']['output'];
+  gp: Scalars['Int']['output'];
+  pp: Scalars['Int']['output'];
+  sp: Scalars['Int']['output'];
+};
+
+export type CurrencyInput = {
+  cp: Scalars['Int']['input'];
+  ep: Scalars['Int']['input'];
+  gp: Scalars['Int']['input'];
+  pp: Scalars['Int']['input'];
+  sp: Scalars['Int']['input'];
+};
+
+export type DeathSaves = {
+  __typename?: 'DeathSaves';
+  failures: Scalars['Int']['output'];
+  successes: Scalars['Int']['output'];
+};
+
+export type DeathSavesInput = {
+  failures: Scalars['Int']['input'];
+  successes: Scalars['Int']['input'];
+};
+
+export type Hp = {
+  __typename?: 'HP';
+  current: Scalars['Int']['output'];
+  max: Scalars['Int']['output'];
+  temp: Scalars['Int']['output'];
+};
+
+export type HpInput = {
+  current: Scalars['Int']['input'];
+  max: Scalars['Int']['input'];
+  temp: Scalars['Int']['input'];
+};
+
+export type HitDice = {
+  __typename?: 'HitDice';
+  die: Scalars['String']['output'];
+  remaining: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type HitDiceInput = {
+  die: Scalars['String']['input'];
+  remaining: Scalars['Int']['input'];
+  total: Scalars['Int']['input'];
+};
+
+export type InventoryItem = {
+  __typename?: 'InventoryItem';
+  description?: Maybe<Scalars['String']['output']>;
+  equipped: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  magical: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  weight?: Maybe<Scalars['Float']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addSpellToList: SpellList;
+  createCharacter: Character;
   createSpellList: SpellList;
+  deleteCharacter: Scalars['Boolean']['output'];
   deleteSpellList: Scalars['Boolean']['output'];
   removeSpellFromList: SpellList;
   renameSpellList: Scalars['Boolean']['output'];
+  toggleInspiration: Character;
+  updateAbilityScores: CharacterStats;
+  updateCharacter: Character;
+  updateCurrency: CharacterStats;
+  updateDeathSaves: CharacterStats;
+  updateHP: CharacterStats;
+  updateHitDice: CharacterStats;
+  updateSavingThrowProficiencies: CharacterStats;
+  updateSkillProficiencies: CharacterStats;
+  updateTraits: CharacterStats;
 };
 
 
@@ -34,8 +221,18 @@ export type MutationAddSpellToListArgs = {
 };
 
 
+export type MutationCreateCharacterArgs = {
+  input: CreateCharacterInput;
+};
+
+
 export type MutationCreateSpellListArgs = {
   name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteCharacterArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -55,11 +252,83 @@ export type MutationRenameSpellListArgs = {
   name: Scalars['String']['input'];
 };
 
+
+export type MutationToggleInspirationArgs = {
+  characterId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateAbilityScoresArgs = {
+  characterId: Scalars['ID']['input'];
+  input: AbilityScoresInput;
+};
+
+
+export type MutationUpdateCharacterArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateCharacterInput;
+};
+
+
+export type MutationUpdateCurrencyArgs = {
+  characterId: Scalars['ID']['input'];
+  input: CurrencyInput;
+};
+
+
+export type MutationUpdateDeathSavesArgs = {
+  characterId: Scalars['ID']['input'];
+  input: DeathSavesInput;
+};
+
+
+export type MutationUpdateHpArgs = {
+  characterId: Scalars['ID']['input'];
+  input: HpInput;
+};
+
+
+export type MutationUpdateHitDiceArgs = {
+  characterId: Scalars['ID']['input'];
+  input: HitDiceInput;
+};
+
+
+export type MutationUpdateSavingThrowProficienciesArgs = {
+  characterId: Scalars['ID']['input'];
+  input: SavingThrowProficienciesInput;
+};
+
+
+export type MutationUpdateSkillProficienciesArgs = {
+  characterId: Scalars['ID']['input'];
+  input: SkillProficienciesInput;
+};
+
+
+export type MutationUpdateTraitsArgs = {
+  characterId: Scalars['ID']['input'];
+  input: TraitsInput;
+};
+
+export enum ProficiencyLevel {
+  Expert = 'expert',
+  None = 'none',
+  Proficient = 'proficient'
+}
+
 export type Query = {
   __typename?: 'Query';
+  character?: Maybe<Character>;
+  currentUserCharacters: Array<Character>;
   currentUserSpellLists: Array<SpellList>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
+};
+
+
+export type QueryCharacterArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -70,6 +339,53 @@ export type QuerySpellArgs = {
 
 export type QuerySpellsArgs = {
   filter?: InputMaybe<SpellFilter>;
+};
+
+export type SavingThrowProficienciesInput = {
+  proficiencies: Array<Scalars['String']['input']>;
+};
+
+export type SkillProficiencies = {
+  __typename?: 'SkillProficiencies';
+  acrobatics: ProficiencyLevel;
+  animalHandling: ProficiencyLevel;
+  arcana: ProficiencyLevel;
+  athletics: ProficiencyLevel;
+  deception: ProficiencyLevel;
+  history: ProficiencyLevel;
+  insight: ProficiencyLevel;
+  intimidation: ProficiencyLevel;
+  investigation: ProficiencyLevel;
+  medicine: ProficiencyLevel;
+  nature: ProficiencyLevel;
+  perception: ProficiencyLevel;
+  performance: ProficiencyLevel;
+  persuasion: ProficiencyLevel;
+  religion: ProficiencyLevel;
+  sleightOfHand: ProficiencyLevel;
+  stealth: ProficiencyLevel;
+  survival: ProficiencyLevel;
+};
+
+export type SkillProficienciesInput = {
+  acrobatics?: InputMaybe<ProficiencyLevel>;
+  animalHandling?: InputMaybe<ProficiencyLevel>;
+  arcana?: InputMaybe<ProficiencyLevel>;
+  athletics?: InputMaybe<ProficiencyLevel>;
+  deception?: InputMaybe<ProficiencyLevel>;
+  history?: InputMaybe<ProficiencyLevel>;
+  insight?: InputMaybe<ProficiencyLevel>;
+  intimidation?: InputMaybe<ProficiencyLevel>;
+  investigation?: InputMaybe<ProficiencyLevel>;
+  medicine?: InputMaybe<ProficiencyLevel>;
+  nature?: InputMaybe<ProficiencyLevel>;
+  perception?: InputMaybe<ProficiencyLevel>;
+  performance?: InputMaybe<ProficiencyLevel>;
+  persuasion?: InputMaybe<ProficiencyLevel>;
+  religion?: InputMaybe<ProficiencyLevel>;
+  sleightOfHand?: InputMaybe<ProficiencyLevel>;
+  stealth?: InputMaybe<ProficiencyLevel>;
+  survival?: InputMaybe<ProficiencyLevel>;
 };
 
 export type Spell = {
@@ -110,6 +426,48 @@ export type SpellList = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   spells: Array<Spell>;
+};
+
+export type SpellSlot = {
+  __typename?: 'SpellSlot';
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+  used: Scalars['Int']['output'];
+};
+
+export type Traits = {
+  __typename?: 'Traits';
+  bonds: Scalars['String']['output'];
+  flaws: Scalars['String']['output'];
+  ideals: Scalars['String']['output'];
+  personality: Scalars['String']['output'];
+};
+
+export type TraitsInput = {
+  bonds: Scalars['String']['input'];
+  flaws: Scalars['String']['input'];
+  ideals: Scalars['String']['input'];
+  personality: Scalars['String']['input'];
+};
+
+export type UpdateCharacterInput = {
+  ac?: InputMaybe<Scalars['Int']['input']>;
+  alignment?: InputMaybe<Scalars['String']['input']>;
+  background?: InputMaybe<Scalars['String']['input']>;
+  class?: InputMaybe<Scalars['String']['input']>;
+  conditions?: InputMaybe<Array<Scalars['String']['input']>>;
+  initiative?: InputMaybe<Scalars['Int']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  proficiencyBonus?: InputMaybe<Scalars['Int']['input']>;
+  race?: InputMaybe<Scalars['String']['input']>;
+  speed?: InputMaybe<Scalars['Int']['input']>;
+  spellAttackBonus?: InputMaybe<Scalars['Int']['input']>;
+  spellSaveDC?: InputMaybe<Scalars['Int']['input']>;
+  spellcastingAbility?: InputMaybe<Scalars['String']['input']>;
+  subclass?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -183,42 +541,246 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AbilityScores: ResolverTypeWrapper<AbilityScores>;
+  AbilityScoresInput: AbilityScoresInput;
+  Attack: ResolverTypeWrapper<Attack>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Character: ResolverTypeWrapper<PrismaCharacter>;
+  CharacterFeature: ResolverTypeWrapper<CharacterFeature>;
+  CharacterPreparedSpell: ResolverTypeWrapper<CharacterPreparedSpell>;
+  CharacterStats: ResolverTypeWrapper<PrismaCharacterStats>;
+  CreateCharacterInput: CreateCharacterInput;
+  Currency: ResolverTypeWrapper<Currency>;
+  CurrencyInput: CurrencyInput;
+  DeathSaves: ResolverTypeWrapper<DeathSaves>;
+  DeathSavesInput: DeathSavesInput;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  HP: ResolverTypeWrapper<Hp>;
+  HPInput: HpInput;
+  HitDice: ResolverTypeWrapper<HitDice>;
+  HitDiceInput: HitDiceInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InventoryItem: ResolverTypeWrapper<InventoryItem>;
   Mutation: ResolverTypeWrapper<{}>;
+  ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
+  SavingThrowProficienciesInput: SavingThrowProficienciesInput;
+  SkillProficiencies: ResolverTypeWrapper<SkillProficiencies>;
+  SkillProficienciesInput: SkillProficienciesInput;
   Spell: ResolverTypeWrapper<Spell>;
   SpellFilter: SpellFilter;
   SpellList: ResolverTypeWrapper<PrismaSpellList>;
+  SpellSlot: ResolverTypeWrapper<SpellSlot>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Traits: ResolverTypeWrapper<Traits>;
+  TraitsInput: TraitsInput;
+  UpdateCharacterInput: UpdateCharacterInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AbilityScores: AbilityScores;
+  AbilityScoresInput: AbilityScoresInput;
+  Attack: Attack;
   Boolean: Scalars['Boolean']['output'];
+  Character: PrismaCharacter;
+  CharacterFeature: CharacterFeature;
+  CharacterPreparedSpell: CharacterPreparedSpell;
+  CharacterStats: PrismaCharacterStats;
+  CreateCharacterInput: CreateCharacterInput;
+  Currency: Currency;
+  CurrencyInput: CurrencyInput;
+  DeathSaves: DeathSaves;
+  DeathSavesInput: DeathSavesInput;
+  Float: Scalars['Float']['output'];
+  HP: Hp;
+  HPInput: HpInput;
+  HitDice: HitDice;
+  HitDiceInput: HitDiceInput;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  InventoryItem: InventoryItem;
   Mutation: {};
   Query: {};
+  SavingThrowProficienciesInput: SavingThrowProficienciesInput;
+  SkillProficiencies: SkillProficiencies;
+  SkillProficienciesInput: SkillProficienciesInput;
   Spell: Spell;
   SpellFilter: SpellFilter;
   SpellList: PrismaSpellList;
+  SpellSlot: SpellSlot;
   String: Scalars['String']['output'];
+  Traits: Traits;
+  TraitsInput: TraitsInput;
+  UpdateCharacterInput: UpdateCharacterInput;
+};
+
+export type AbilityScoresResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AbilityScores'] = ResolversParentTypes['AbilityScores']> = {
+  charisma?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  constitution?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dexterity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  intelligence?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  strength?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  wisdom?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AttackResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Attack'] = ResolversParentTypes['Attack']> = {
+  attackBonus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  damage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CharacterResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Character'] = ResolversParentTypes['Character']> = {
+  ac?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  alignment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  attacks?: Resolver<Array<ResolversTypes['Attack']>, ParentType, ContextType>;
+  background?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  class?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  conditions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  features?: Resolver<Array<ResolversTypes['CharacterFeature']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  initiative?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  inspiration?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  inventory?: Resolver<Array<ResolversTypes['InventoryItem']>, ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preparedSpells?: Resolver<Array<ResolversTypes['CharacterPreparedSpell']>, ParentType, ContextType>;
+  proficiencyBonus?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  race?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  speed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  spellAttackBonus?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  spellSaveDC?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  spellSlots?: Resolver<Array<ResolversTypes['SpellSlot']>, ParentType, ContextType>;
+  spellcastingAbility?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  stats?: Resolver<Maybe<ResolversTypes['CharacterStats']>, ParentType, ContextType>;
+  subclass?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CharacterFeatureResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CharacterFeature'] = ResolversParentTypes['CharacterFeature']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recharge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  usesMax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  usesRemaining?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CharacterPreparedSpellResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CharacterPreparedSpell'] = ResolversParentTypes['CharacterPreparedSpell']> = {
+  prepared?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  spell?: Resolver<ResolversTypes['Spell'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CharacterStatsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CharacterStats'] = ResolversParentTypes['CharacterStats']> = {
+  abilityScores?: Resolver<ResolversTypes['AbilityScores'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['Currency'], ParentType, ContextType>;
+  deathSaves?: Resolver<ResolversTypes['DeathSaves'], ParentType, ContextType>;
+  hitDice?: Resolver<ResolversTypes['HitDice'], ParentType, ContextType>;
+  hp?: Resolver<ResolversTypes['HP'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  savingThrowProficiencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  skillProficiencies?: Resolver<ResolversTypes['SkillProficiencies'], ParentType, ContextType>;
+  traits?: Resolver<ResolversTypes['Traits'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CurrencyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Currency'] = ResolversParentTypes['Currency']> = {
+  cp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ep?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  gp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeathSavesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeathSaves'] = ResolversParentTypes['DeathSaves']> = {
+  failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  successes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HpResolvers<ContextType = Context, ParentType extends ResolversParentTypes['HP'] = ResolversParentTypes['HP']> = {
+  current?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  max?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  temp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type HitDiceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['HitDice'] = ResolversParentTypes['HitDice']> = {
+  die?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  remaining?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type InventoryItemResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InventoryItem'] = ResolversParentTypes['InventoryItem']> = {
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  equipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  magical?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addSpellToList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationAddSpellToListArgs, 'spellId' | 'spellListId'>>;
+  createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
   createSpellList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationCreateSpellListArgs, 'name'>>;
+  deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   deleteSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSpellListArgs, 'id'>>;
   removeSpellFromList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationRemoveSpellFromListArgs, 'spellId' | 'spellListId'>>;
   renameSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRenameSpellListArgs, 'id' | 'name'>>;
+  toggleInspiration?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationToggleInspirationArgs, 'characterId'>>;
+  updateAbilityScores?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateAbilityScoresArgs, 'characterId' | 'input'>>;
+  updateCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationUpdateCharacterArgs, 'id' | 'input'>>;
+  updateCurrency?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateCurrencyArgs, 'characterId' | 'input'>>;
+  updateDeathSaves?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateDeathSavesArgs, 'characterId' | 'input'>>;
+  updateHP?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHpArgs, 'characterId' | 'input'>>;
+  updateHitDice?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateHitDiceArgs, 'characterId' | 'input'>>;
+  updateSavingThrowProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSavingThrowProficienciesArgs, 'characterId' | 'input'>>;
+  updateSkillProficiencies?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateSkillProficienciesArgs, 'characterId' | 'input'>>;
+  updateTraits?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateTraitsArgs, 'characterId' | 'input'>>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
+  currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
   currentUserSpellLists?: Resolver<Array<ResolversTypes['SpellList']>, ParentType, ContextType>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
   spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType, Partial<QuerySpellsArgs>>;
+};
+
+export type SkillProficienciesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SkillProficiencies'] = ResolversParentTypes['SkillProficiencies']> = {
+  acrobatics?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  animalHandling?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  arcana?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  athletics?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  deception?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  history?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  insight?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  intimidation?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  investigation?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  medicine?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  nature?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  perception?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  performance?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  persuasion?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  religion?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  sleightOfHand?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  stealth?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  survival?: Resolver<ResolversTypes['ProficiencyLevel'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SpellResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Spell'] = ResolversParentTypes['Spell']> = {
@@ -247,10 +809,40 @@ export type SpellListResolvers<ContextType = Context, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SpellSlotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SpellSlot'] = ResolversParentTypes['SpellSlot']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  used?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TraitsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Traits'] = ResolversParentTypes['Traits']> = {
+  bonds?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  flaws?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ideals?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  personality?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = Context> = {
+  AbilityScores?: AbilityScoresResolvers<ContextType>;
+  Attack?: AttackResolvers<ContextType>;
+  Character?: CharacterResolvers<ContextType>;
+  CharacterFeature?: CharacterFeatureResolvers<ContextType>;
+  CharacterPreparedSpell?: CharacterPreparedSpellResolvers<ContextType>;
+  CharacterStats?: CharacterStatsResolvers<ContextType>;
+  Currency?: CurrencyResolvers<ContextType>;
+  DeathSaves?: DeathSavesResolvers<ContextType>;
+  HP?: HpResolvers<ContextType>;
+  HitDice?: HitDiceResolvers<ContextType>;
+  InventoryItem?: InventoryItemResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SkillProficiencies?: SkillProficienciesResolvers<ContextType>;
   Spell?: SpellResolvers<ContextType>;
   SpellList?: SpellListResolvers<ContextType>;
+  SpellSlot?: SpellSlotResolvers<ContextType>;
+  Traits?: TraitsResolvers<ContextType>;
 };
 

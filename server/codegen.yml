@@ -8,3 +8,5 @@ generates:
       contextType: ./index#Context
       mappers:
         SpellList: "@prisma/client#SpellList as PrismaSpellList"
+        Character: "@prisma/client#Character as PrismaCharacter"
+        CharacterStats: "@prisma/client#CharacterStats as PrismaCharacterStats"
