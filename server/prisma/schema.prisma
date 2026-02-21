@@ -35,7 +35,7 @@ model Spell {
     sourceBook        String?
     raw               Json?
     spellLists        SpellListSpell[]
-    characterSpells   CharacterPreparedSpell[]
+    characterSpells   CharacterSpell[]
 
     @@index([name])
     @@index([level])
@@ -143,7 +143,7 @@ model Character {
     inventory           InventoryItem[]
     features            CharacterFeature[]
     spellSlots          SpellSlot[]
-    preparedSpells      CharacterPreparedSpell[]
+    spellbook           CharacterSpell[]
 
     @@index([ownerUserId])
 }
@@ -216,12 +216,13 @@ model SpellSlot {
     @@index([characterId])
 }
 
-model CharacterPreparedSpell {
+model CharacterSpell {
     character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
     characterId   String
     spell         Spell     @relation(fields: [spellId], references: [id], onDelete: Cascade)
     spellId       String
-    prepared      Boolean   @default(true)
+    prepared      Boolean   @default(false)
 
     @@id([characterId, spellId])
+    @@map("CharacterPreparedSpell")
 }
