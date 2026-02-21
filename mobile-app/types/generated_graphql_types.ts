@@ -88,9 +88,16 @@ export type Spell = {
 };
 
 export type SpellFilter = {
+  castingTimeCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   classes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  components?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  concentration?: InputMaybe<Scalars['Boolean']['input']>;
+  durationCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  hasHigherLevel?: InputMaybe<Scalars['Boolean']['input']>;
+  hasMaterial?: InputMaybe<Scalars['Boolean']['input']>;
   levels?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   name?: InputMaybe<Scalars['String']['input']>;
+  rangeCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ritual?: InputMaybe<Scalars['Boolean']['input']>;
 };
 

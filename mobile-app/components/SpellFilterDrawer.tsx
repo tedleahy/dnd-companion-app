@@ -1,12 +1,70 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Chip, Modal, Portal, Switch, Text } from 'react-native-paper';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Button, Modal, Portal, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+import FilterChipGroup from '@/components/FilterChipGroup';
+import FilterSwitch from '@/components/FilterSwitch';
 
-const ALL_CLASSES = [
-    'bard', 'cleric', 'druid', 'paladin', 'ranger', 'sorcerer', 'warlock', 'wizard',
+const ALL_CLASSES: { key: string; label: string }[] = [
+    { key: 'bard', label: 'Bard' },
+    { key: 'cleric', label: 'Cleric' },
+    { key: 'druid', label: 'Druid' },
+    { key: 'paladin', label: 'Paladin' },
+    { key: 'ranger', label: 'Ranger' },
+    { key: 'sorcerer', label: 'Sorcerer' },
+    { key: 'warlock', label: 'Warlock' },
+    { key: 'wizard', label: 'Wizard' },
 ];
 
-const ALL_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const ALL_LEVELS: { key: string; label: string }[] = [
+    { key: '0', label: 'Cantrip' },
+    { key: '1', label: '1' },
+    { key: '2', label: '2' },
+    { key: '3', label: '3' },
+    { key: '4', label: '4' },
+    { key: '5', label: '5' },
+    { key: '6', label: '6' },
+    { key: '7', label: '7' },
+    { key: '8', label: '8' },
+    { key: '9', label: '9' },
+];
+
+const ALL_COMPONENTS: { key: string; label: string }[] = [
+    { key: 'V', label: 'Verbal' },
+    { key: 'S', label: 'Somatic' },
+    { key: 'M', label: 'Material' },
+];
+
+const RANGE_CATEGORIES: { key: string; label: string }[] = [
+    { key: 'self', label: 'Self' },
+    { key: 'touch', label: 'Touch' },
+    { key: 'short', label: 'Short (≤30 ft)' },
+    { key: 'medium', label: 'Medium (31–120 ft)' },
+    { key: 'long', label: 'Long (>120 ft)' },
+    { key: 'sight', label: 'Sight' },
+    { key: 'special', label: 'Special' },
+];
+
+const DURATION_CATEGORIES: { key: string; label: string }[] = [
+    { key: 'instantaneous', label: 'Instantaneous' },
+    { key: '1_round', label: '1 Round' },
+    { key: 'up_to_1_minute', label: '≤1 Minute' },
+    { key: 'up_to_10_minutes', label: '≤10 Minutes' },
+    { key: 'up_to_1_hour', label: '≤1 Hour' },
+    { key: 'up_to_8_hours', label: '≤8 Hours' },
+    { key: 'up_to_24_hours', label: '≤24 Hours' },
+    { key: 'days_plus', label: 'Days+' },
+    { key: 'until_dispelled', label: 'Until Dispelled' },
+    { key: 'special', label: 'Special' },
+];
+
+const CASTING_TIME_CATEGORIES: { key: string; label: string }[] = [
+    { key: '1_action', label: '1 Action' },
+    { key: '1_bonus_action', label: '1 Bonus Action' },
+    { key: '1_reaction', label: '1 Reaction' },
+    { key: '1_minute', label: '1 Minute' },
+    { key: '10_minutes', label: '10 Minutes' },
+    { key: '1_hour_plus', label: '1 Hour+' },
+];
 
 /**
  * Active filter criteria for the spell list.
@@ -19,6 +77,13 @@ export type SpellFilters = {
     classes: string[];
     levels: number[];
     ritual: boolean | undefined;
+    concentration: boolean | undefined;
+    hasHigherLevel: boolean | undefined;
+    hasMaterial: boolean | undefined;
+    components: string[];
+    rangeCategories: string[];
+    durationCategories: string[];
+    castingTimeCategories: string[];
 };
 
 /** Default filter state with nothing selected. */
@@ -26,6 +91,13 @@ export const EMPTY_FILTERS: SpellFilters = {
     classes: [],
     levels: [],
     ritual: undefined,
+    concentration: undefined,
+    hasHigherLevel: undefined,
+    hasMaterial: undefined,
+    components: [],
+    rangeCategories: [],
+    durationCategories: [],
+    castingTimeCategories: [],
 };
 
 /**
@@ -55,19 +127,21 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
             : [...array, item];
     }
 
-    /** Toggles a class filter on or off. */
-    function toggleClass(cls: string) {
-        onChange({ ...filters, classes: toggle(filters.classes, cls) });
+    /** Toggles a string-keyed array filter field. */
+    function toggleArrayFilter(field: keyof SpellFilters, key: string) {
+        const current = filters[field] as string[];
+        onChange({ ...filters, [field]: toggle(current, key) });
     }
 
-    /** Toggles a level filter on or off. */
-    function toggleLevel(level: number) {
-        onChange({ ...filters, levels: toggle(filters.levels, level) });
+    /** Toggles a level (stored as number[], but chip keys are strings). */
+    function toggleLevel(key: string) {
+        const num = Number(key);
+        onChange({ ...filters, levels: toggle(filters.levels, num) });
     }
 
-    /** Toggles the ritual-only filter between `true` and `undefined`. */
-    function toggleRitual() {
-        onChange({ ...filters, ritual: filters.ritual ? undefined : true });
+    /** Toggles a boolean | undefined filter between `true` and `undefined`. */
+    function toggleBoolFilter(field: keyof SpellFilters) {
+        onChange({ ...filters, [field]: filters[field] ? undefined : true });
     }
 
     /** Resets all filters to {@link EMPTY_FILTERS}. */
@@ -85,63 +159,52 @@ export default function SpellFilterDrawer({ visible, filters, onClose, onChange 
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <Text style={styles.drawerTitle}>Filters</Text>
 
-                    {/* ── Class ── */}
-                    <Text style={styles.sectionLabel}>Class</Text>
-                    <View style={styles.chipRow}>
-                        {ALL_CLASSES.map((cls) => (
-                            <Chip
-                                key={cls}
-                                selected={filters.classes.includes(cls)}
-                                onPress={() => toggleClass(cls)}
-                                style={[
-                                    styles.chip,
-                                    filters.classes.includes(cls) && styles.chipSelected,
-                                ]}
-                                textStyle={[
-                                    styles.chipText,
-                                    filters.classes.includes(cls) && styles.chipTextSelected,
-                                ]}
-                                showSelectedOverlay={false}
-                                showSelectedCheck={false}
-                            >
-                                {cls.charAt(0).toUpperCase() + cls.slice(1)}
-                            </Chip>
-                        ))}
-                    </View>
+                    <FilterChipGroup
+                        label="Class"
+                        options={ALL_CLASSES}
+                        selected={filters.classes}
+                        onToggle={(key) => toggleArrayFilter('classes', key)}
+                    />
 
-                    {/* ── Level ── */}
-                    <Text style={styles.sectionLabel}>Level</Text>
-                    <View style={styles.chipRow}>
-                        {ALL_LEVELS.map((level) => (
-                            <Chip
-                                key={level}
-                                selected={filters.levels.includes(level)}
-                                onPress={() => toggleLevel(level)}
-                                style={[
-                                    styles.chip,
-                                    filters.levels.includes(level) && styles.chipSelected,
-                                ]}
-                                textStyle={[
-                                    styles.chipText,
-                                    filters.levels.includes(level) && styles.chipTextSelected,
-                                ]}
-                                showSelectedOverlay={false}
-                                showSelectedCheck={false}
-                            >
-                                {level === 0 ? 'Cantrip' : String(level)}
-                            </Chip>
-                        ))}
-                    </View>
+                    <FilterChipGroup
+                        label="Level"
+                        options={ALL_LEVELS}
+                        selected={filters.levels.map(String)}
+                        onToggle={toggleLevel}
+                    />
 
-                    {/* ── Ritual ── */}
-                    <View style={styles.switchRow}>
-                        <Text style={styles.sectionLabel}>Ritual only</Text>
-                        <Switch
-                            value={filters.ritual === true}
-                            onValueChange={toggleRitual}
-                            color={fantasyTokens.colors.crimson}
-                        />
-                    </View>
+                    <FilterSwitch label="Ritual only" value={filters.ritual === true} onToggle={() => toggleBoolFilter('ritual')} />
+                    <FilterSwitch label="Concentration" value={filters.concentration === true} onToggle={() => toggleBoolFilter('concentration')} />
+                    <FilterSwitch label="Has higher level" value={filters.hasHigherLevel === true} onToggle={() => toggleBoolFilter('hasHigherLevel')} />
+                    <FilterSwitch label="Requires material" value={filters.hasMaterial === true} onToggle={() => toggleBoolFilter('hasMaterial')} />
+
+                    <FilterChipGroup
+                        label="Components"
+                        options={ALL_COMPONENTS}
+                        selected={filters.components}
+                        onToggle={(key) => toggleArrayFilter('components', key)}
+                    />
+
+                    <FilterChipGroup
+                        label="Range"
+                        options={RANGE_CATEGORIES}
+                        selected={filters.rangeCategories}
+                        onToggle={(key) => toggleArrayFilter('rangeCategories', key)}
+                    />
+
+                    <FilterChipGroup
+                        label="Duration"
+                        options={DURATION_CATEGORIES}
+                        selected={filters.durationCategories}
+                        onToggle={(key) => toggleArrayFilter('durationCategories', key)}
+                    />
+
+                    <FilterChipGroup
+                        label="Casting Time"
+                        options={CASTING_TIME_CATEGORIES}
+                        selected={filters.castingTimeCategories}
+                        onToggle={(key) => toggleArrayFilter('castingTimeCategories', key)}
+                    />
 
                     {/* ── Clear ── */}
                     <Button
@@ -175,42 +238,6 @@ const styles = StyleSheet.create({
         fontFamily: 'serif',
         color: fantasyTokens.colors.parchment,
         marginBottom: fantasyTokens.spacing.md,
-    },
-    sectionLabel: {
-        fontSize: 14,
-        fontFamily: 'serif',
-        letterSpacing: 1.2,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
-        marginTop: fantasyTokens.spacing.md,
-        marginBottom: fantasyTokens.spacing.sm,
-    },
-    chipRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: fantasyTokens.spacing.sm,
-    },
-    chip: {
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: fantasyTokens.colors.gold,
-    },
-    chipSelected: {
-        backgroundColor: fantasyTokens.colors.crimson,
-        borderColor: fantasyTokens.colors.crimson,
-    },
-    chipText: {
-        color: fantasyTokens.colors.parchment,
-        fontFamily: 'serif',
-    },
-    chipTextSelected: {
-        color: fantasyTokens.colors.parchment,
-    },
-    switchRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: fantasyTokens.spacing.md,
     },
     clearButton: {
         marginTop: fantasyTokens.spacing.lg,

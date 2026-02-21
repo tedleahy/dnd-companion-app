@@ -51,6 +51,13 @@ export default function SpellSearch() {
         if (filters.levels.length > 0) filter.levels = filters.levels;
         if (filters.classes.length > 0) filter.classes = filters.classes;
         if (filters.ritual != null) filter.ritual = filters.ritual;
+        if (filters.concentration != null) filter.concentration = filters.concentration;
+        if (filters.hasHigherLevel != null) filter.hasHigherLevel = filters.hasHigherLevel;
+        if (filters.hasMaterial != null) filter.hasMaterial = filters.hasMaterial;
+        if (filters.components.length > 0) filter.components = filters.components;
+        if (filters.rangeCategories.length > 0) filter.rangeCategories = filters.rangeCategories;
+        if (filters.durationCategories.length > 0) filter.durationCategories = filters.durationCategories;
+        if (filters.castingTimeCategories.length > 0) filter.castingTimeCategories = filters.castingTimeCategories;
 
         return Object.keys(filter).length > 0 ? filter : undefined;
     }
@@ -69,7 +76,14 @@ export default function SpellSearch() {
     const activeFilterCount =
         searchParams.filters.classes.length +
         searchParams.filters.levels.length +
-        (searchParams.filters.ritual != null ? 1 : 0);
+        (searchParams.filters.ritual != null ? 1 : 0) +
+        (searchParams.filters.concentration != null ? 1 : 0) +
+        (searchParams.filters.hasHigherLevel != null ? 1 : 0) +
+        (searchParams.filters.hasMaterial != null ? 1 : 0) +
+        searchParams.filters.components.length +
+        searchParams.filters.rangeCategories.length +
+        searchParams.filters.durationCategories.length +
+        searchParams.filters.castingTimeCategories.length;
 
     /** Signs the user out via Supabase and redirects to the sign-in screen. */
     async function signOut() {

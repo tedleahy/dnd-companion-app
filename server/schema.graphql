@@ -21,6 +21,13 @@ input SpellFilter {
     levels: [Int]
     classes: [String]
     ritual: Boolean
+    hasHigherLevel: Boolean
+    rangeCategories: [String]
+    components: [String]
+    hasMaterial: Boolean
+    concentration: Boolean
+    durationCategories: [String]
+    castingTimeCategories: [String]
 }
 
 type SpellList {
