@@ -32,6 +32,7 @@ model Spell {
     schoolIndex       String
     classIndexes      String[]    @default([])
     subclassIndexes   String[]    @default([])
+    sourceBook        String?
     raw               Json?
     spellLists        SpellListSpell[]
 
@@ -42,6 +43,7 @@ model Spell {
     @@index([concentration])
     @@index([classIndexes], type: Gin)
     @@index([subclassIndexes], type: Gin)
+    @@index([sourceBook])
 }
 
 model AbilityScore {

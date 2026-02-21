@@ -55,6 +55,7 @@ function toCustomSpellRecord(spell: CustomSpell) {
         schoolIndex: spell.schoolIndex,
         classIndexes: parseClassIndexes(spell.classIndexes),
         subclassIndexes: [],
+        sourceBook: spell.sourceBook,
         raw: spell ?? Prisma.JsonNull,
     };
 }

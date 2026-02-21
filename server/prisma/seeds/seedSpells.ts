@@ -53,6 +53,7 @@ function toSrdSpellRecord(spell: SrdSpell) {
         schoolIndex: spell.school.index,
         classIndexes: spell.classes.map((item) => item.index),
         subclassIndexes: spell.subclasses.map((item) => item.index),
+        sourceBook: 'SRD',
         raw: spell ?? Prisma.JsonNull,
     };
 }
