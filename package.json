@@ -2,6 +2,7 @@
     "name": "dnd-companion-app",
     "private": true,
     "scripts": {
+        "db:reset": "cd server && bun run reset-db",
         "server:dev": "cd server && bun run dev",
         "server:codegen": "cd server && bun run codegen",
         "app:start": "cd mobile-app && yarn run start",
