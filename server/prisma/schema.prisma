@@ -35,6 +35,7 @@ model Spell {
     sourceBook        String?
     raw               Json?
     spellLists        SpellListSpell[]
+    characterSpells   CharacterPreparedSpell[]
 
     @@index([name])
     @@index([level])
@@ -104,4 +105,123 @@ model SpellListSpell {
     addedAt     DateTime  @default(now())
 
     @@id([spellListId, spellId])
+}
+
+// ---------------------------------------------------------------------------
+// Character Sheet
+// ---------------------------------------------------------------------------
+
+model Character {
+    id                  String    @id @default(cuid())
+    ownerUserId         String
+    createdAt           DateTime  @default(now())
+
+    // Identity
+    name                String
+    race                String
+    class               String
+    subclass            String?
+    level               Int
+    alignment           String
+    background          String
+
+    // Quick / combat scalars
+    proficiencyBonus    Int
+    inspiration         Boolean   @default(false)
+    ac                  Int
+    speed               Int
+    initiative          Int
+    spellcastingAbility String?
+    spellSaveDC         Int?
+    spellAttackBonus    Int?
+    conditions          String[]  @default([])
+    notes               String    @default("")
+
+    // Relations
+    stats               CharacterStats?
+    attacks             Attack[]
+    inventory           InventoryItem[]
+    features            CharacterFeature[]
+    spellSlots          SpellSlot[]
+    preparedSpells      CharacterPreparedSpell[]
+
+    @@index([ownerUserId])
+}
+
+// 1:1 table for interactive stat blocks (each updated independently)
+model CharacterStats {
+    id                        String   @id @default(cuid())
+    character                 Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId               String   @unique
+
+    abilityScores             Json     // { strength, dexterity, constitution, intelligence, wisdom, charisma }
+    hp                        Json     // { current, max, temp }
+    deathSaves                Json     // { successes, failures }
+    hitDice                   Json     // { total, remaining, die }
+    savingThrowProficiencies  String[] @default([])
+    skillProficiencies        Json     // Record<SkillName, 'none' | 'proficient' | 'expert'>
+    traits                    Json     // { personality, ideals, bonds, flaws }
+    currency                  Json     // { cp, sp, ep, gp, pp }
+}
+
+model Attack {
+    id            String    @id @default(cuid())
+    character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId   String
+    name          String
+    attackBonus   String    // e.g. "+7"
+    damage        String    // e.g. "1d4+3 P"
+    type          String    // 'melee' | 'ranged' | 'spell'
+
+    @@index([characterId])
+}
+
+model InventoryItem {
+    id            String    @id @default(cuid())
+    character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId   String
+    name          String
+    quantity      Int       @default(1)
+    weight        Float?
+    description   String?
+    equipped      Boolean   @default(false)
+    magical       Boolean   @default(false)
+
+    @@index([characterId])
+}
+
+model CharacterFeature {
+    id              String    @id @default(cuid())
+    character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId     String
+    name            String
+    source          String    // e.g. "Wizard 2", "High Elf"
+    description     String
+    usesMax         Int?
+    usesRemaining   Int?
+    recharge        String?   // 'short' | 'long' | 'dawn'
+
+    @@index([characterId])
+}
+
+model SpellSlot {
+    id            String    @id @default(cuid())
+    character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId   String
+    level         Int       // 1–9
+    total         Int
+    used          Int       @default(0)
+
+    @@unique([characterId, level])
+    @@index([characterId])
+}
+
+model CharacterPreparedSpell {
+    character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    characterId   String
+    spell         Spell     @relation(fields: [spellId], references: [id], onDelete: Cascade)
+    spellId       String
+    prepared      Boolean   @default(true)
+
+    @@id([characterId, spellId])
 }
