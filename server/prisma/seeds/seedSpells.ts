@@ -1,7 +1,7 @@
 import { Prisma, SpellSource } from '@prisma/client';
 import prisma from '../prisma';
 
-type Spell = {
+type SrdSpell = {
     index: string;
     name: string;
     desc: string[];
@@ -29,7 +29,7 @@ type Spell = {
     subclasses: Array<{ index: string }>;
 };
 
-function toSpellRecord(spell: Spell) {
+function toSrdSpellRecord(spell: SrdSpell) {
     return {
         source: SpellSource.SRD,
         srdIndex: spell.index,
@@ -57,26 +57,30 @@ function toSpellRecord(spell: Spell) {
     };
 }
 
-export default async function seedSpells() {
+export default async function seedSpells(): Promise<Set<string>> {
     try {
-        const relativeFilePath = '../../../srd-json-files/5e-SRD-Spells.json';
-        const filePath = new URL(relativeFilePath, import.meta.url).pathname;
-        const spells = (await Bun.file(filePath).json()) as Spell[];
+        // --- Seed SRD spells ---
+        const srdFilePath = new URL('../../../srd-json-files/5e-SRD-Spells.json', import.meta.url).pathname;
+        const srdSpells = (await Bun.file(srdFilePath).json()) as SrdSpell[];
 
-        console.log(`Loaded ${spells.length} spells from SRD JSON.`);
+        console.log(`Loaded ${srdSpells.length} spells from SRD JSON.`);
 
-        const records = spells.map(toSpellRecord);
+        const srdRecords = srdSpells.map(toSrdSpellRecord);
 
-        const result = await prisma.spell.createMany({
-            data: records,
+        const srdResult = await prisma.spell.createMany({
+            data: srdRecords,
             skipDuplicates: true,
         });
 
-        console.log(`Seeded ${result.count} spells (skipDuplicates=true).`);
+        console.log(`Seeded ${srdResult.count} SRD spells (skipDuplicates=true).`);
+
+        return new Set(srdSpells.map((s) => s.name.toLowerCase()));
     } catch (error) {
         console.error(error);
         process.exit(1);
     } finally {
         await prisma.$disconnect();
     }
+
+    return new Set();
 }
