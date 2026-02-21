@@ -6,8 +6,10 @@
         "db:migrate": "cd server && bunx prisma migrate dev --name",
         "db:generate": "cd server && bunx prisma generate",
         "server:dev": "cd server && bun run dev",
+        "server:i": "cd server && bun i",
         "server:codegen": "cd server && bun run codegen",
         "app:start": "cd mobile-app && yarn run start",
+        "app:i": "cd mobile-app && yarn add",
         "app:codegen": "cd mobile-app && yarn run codegen"
     }
 }
