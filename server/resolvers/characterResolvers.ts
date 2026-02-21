@@ -13,6 +13,20 @@ import type {
     MutationUpdateTraitsArgs,
     MutationUpdateCurrencyArgs,
     MutationUpdateSavingThrowProficienciesArgs,
+    MutationLearnSpellArgs,
+    MutationForgetSpellArgs,
+    MutationPrepareSpellArgs,
+    MutationUnprepareSpellArgs,
+    MutationToggleSpellSlotArgs,
+    MutationAddAttackArgs,
+    MutationRemoveAttackArgs,
+    MutationAddInventoryItemArgs,
+    MutationRemoveInventoryItemArgs,
+    MutationAddFeatureArgs,
+    MutationRemoveFeatureArgs,
+    MutationSpendHitDieArgs,
+    MutationShortRestArgs,
+    MutationLongRestArgs,
     QueryCharacterArgs,
 } from "../generated/graphql";
 import { requireUser } from "../lib/auth";
@@ -347,9 +361,287 @@ export async function characterSpellSlots(parent: PrismaCharacter) {
     });
 }
 
-export async function characterPreparedSpells(parent: PrismaCharacter) {
-    return await prisma.characterPreparedSpell.findMany({
+export async function characterSpellbook(parent: PrismaCharacter) {
+    return await prisma.characterSpell.findMany({
         where: { characterId: parent.id },
         include: { spell: true },
     });
+}
+
+// ---------------------------------------------------------------------------
+// Spellbook / spell slot mutations
+// ---------------------------------------------------------------------------
+
+export async function learnSpell(
+    _parent: unknown,
+    { characterId, spellId }: MutationLearnSpellArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    return await prisma.characterSpell.upsert({
+        where: { characterId_spellId: { characterId, spellId } },
+        create: { characterId, spellId, prepared: false },
+        update: {},
+        include: { spell: true },
+    });
+}
+
+export async function forgetSpell(
+    _parent: unknown,
+    { characterId, spellId }: MutationForgetSpellArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.characterSpell.deleteMany({
+        where: { characterId, spellId },
+    });
+
+    if (result.count === 0) throw new Error('Spell not in spellbook.');
+
+    return true;
+}
+
+export async function prepareSpell(
+    _parent: unknown,
+    { characterId, spellId }: MutationPrepareSpellArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    return await prisma.characterSpell.update({
+        where: { characterId_spellId: { characterId, spellId } },
+        data: { prepared: true },
+        include: { spell: true },
+    });
+}
+
+export async function unprepareSpell(
+    _parent: unknown,
+    { characterId, spellId }: MutationUnprepareSpellArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    return await prisma.characterSpell.update({
+        where: { characterId_spellId: { characterId, spellId } },
+        data: { prepared: false },
+        include: { spell: true },
+    });
+}
+
+export async function toggleSpellSlot(
+    _parent: unknown,
+    { characterId, level }: MutationToggleSpellSlotArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const slot = await prisma.spellSlot.findUnique({
+        where: { characterId_level: { characterId, level } },
+    });
+    if (!slot) throw new Error('Spell slot not found.');
+
+    // Toggle: if all used, start recovering; otherwise use one more
+    const newUsed = slot.used < slot.total ? slot.used + 1 : 0;
+
+    return await prisma.spellSlot.update({
+        where: { id: slot.id },
+        data: { used: newUsed },
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Gear / features mutations
+// ---------------------------------------------------------------------------
+
+export async function addAttack(
+    _parent: unknown,
+    { characterId, input }: MutationAddAttackArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    return await prisma.attack.create({
+        data: { characterId, ...input },
+    });
+}
+
+export async function removeAttack(
+    _parent: unknown,
+    { characterId, attackId }: MutationRemoveAttackArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.attack.deleteMany({
+        where: { id: attackId, characterId },
+    });
+
+    if (result.count === 0) throw new Error('Attack not found.');
+
+    return true;
+}
+
+export async function addInventoryItem(
+    _parent: unknown,
+    { characterId, input }: MutationAddInventoryItemArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    // Strip null values so Prisma gets undefined for optional fields
+    const data: Record<string, unknown> = { characterId };
+    for (const [key, value] of Object.entries(input)) {
+        if (value !== undefined && value !== null) {
+            data[key] = value;
+        }
+    }
+
+    return await prisma.inventoryItem.create({ data: data as any });
+}
+
+export async function removeInventoryItem(
+    _parent: unknown,
+    { characterId, itemId }: MutationRemoveInventoryItemArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.inventoryItem.deleteMany({
+        where: { id: itemId, characterId },
+    });
+
+    if (result.count === 0) throw new Error('Inventory item not found.');
+
+    return true;
+}
+
+export async function addFeature(
+    _parent: unknown,
+    { characterId, input }: MutationAddFeatureArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    return await prisma.characterFeature.create({
+        data: { characterId, ...input },
+    });
+}
+
+export async function removeFeature(
+    _parent: unknown,
+    { characterId, featureId }: MutationRemoveFeatureArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    await findOwnedCharacter(characterId, userId);
+
+    const result = await prisma.characterFeature.deleteMany({
+        where: { id: featureId, characterId },
+    });
+
+    if (result.count === 0) throw new Error('Feature not found.');
+
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Rest / recovery mutations
+// ---------------------------------------------------------------------------
+
+export async function spendHitDie(
+    _parent: unknown,
+    { characterId, amount }: MutationSpendHitDieArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    const stats = await findOwnedStats(characterId, userId);
+
+    const hitDice = stats.hitDice as { total: number; remaining: number; die: string };
+    const newRemaining = Math.max(0, hitDice.remaining - (amount ?? 1));
+
+    return await prisma.characterStats.update({
+        where: { id: stats.id },
+        data: { hitDice: { ...hitDice, remaining: newRemaining } },
+    });
+}
+
+export async function shortRest(
+    _parent: unknown,
+    { characterId }: MutationShortRestArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    const char = await findOwnedCharacter(characterId, userId);
+
+    // Prisma updateMany can't set usesRemaining = usesMax dynamically,
+    // so we use a raw query to restore feature uses
+    await prisma.$executeRaw`
+        UPDATE "CharacterFeature"
+        SET "usesRemaining" = "usesMax"
+        WHERE "characterId" = ${characterId}
+          AND "recharge" = 'short'
+          AND "usesMax" IS NOT NULL
+    `;
+
+    return char;
+}
+
+export async function longRest(
+    _parent: unknown,
+    { characterId }: MutationLongRestArgs,
+    ctx: Context,
+) {
+    const userId = requireUser(ctx);
+    const char = await findOwnedCharacter(characterId, userId);
+    const stats = await prisma.characterStats.findUnique({ where: { characterId } });
+    if (!stats) throw new Error('Character stats not found.');
+
+    // 1. Restore HP to max, clear temp HP
+    const hp = stats.hp as { current: number; max: number; temp: number };
+    await prisma.characterStats.update({
+        where: { id: stats.id },
+        data: {
+            hp: { current: hp.max, max: hp.max, temp: 0 },
+            deathSaves: { successes: 0, failures: 0 },
+        },
+    });
+
+    // 2. Restore hit dice: recover half total (minimum 1)
+    const hitDice = stats.hitDice as { total: number; remaining: number; die: string };
+    const recovered = Math.max(1, Math.floor(hitDice.total / 2));
+    const newRemaining = Math.min(hitDice.total, hitDice.remaining + recovered);
+    await prisma.characterStats.update({
+        where: { id: stats.id },
+        data: { hitDice: { ...hitDice, remaining: newRemaining } },
+    });
+
+    // 3. Reset all spell slots
+    await prisma.spellSlot.updateMany({
+        where: { characterId },
+        data: { used: 0 },
+    });
+
+    // 4. Restore feature uses (short + long recharge)
+    await prisma.$executeRaw`
+        UPDATE "CharacterFeature"
+        SET "usesRemaining" = "usesMax"
+        WHERE "characterId" = ${characterId}
+          AND "recharge" IN ('short', 'long')
+          AND "usesMax" IS NOT NULL
+    `;
+
+    return char;
 }

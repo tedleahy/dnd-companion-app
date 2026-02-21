@@ -1,6 +1,6 @@
-import { GraphQLResolveInfo } from 'graphql';
-import { SpellList as PrismaSpellList, Character as PrismaCharacter, CharacterStats as PrismaCharacterStats } from '@prisma/client';
-import { Context } from './index';
+import type { GraphQLResolveInfo } from 'graphql';
+import type { SpellList as PrismaSpellList, Character as PrismaCharacter, CharacterStats as PrismaCharacterStats, CharacterSpell as PrismaCharacterSpell } from '@prisma/client';
+import type { Context } from '..';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -46,6 +46,13 @@ export type Attack = {
   type: Scalars['String']['output'];
 };
 
+export type AttackInput = {
+  attackBonus: Scalars['String']['input'];
+  damage: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
 export type Character = {
   __typename?: 'Character';
   ac: Scalars['Int']['output'];
@@ -62,13 +69,13 @@ export type Character = {
   level: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
-  preparedSpells: Array<CharacterPreparedSpell>;
   proficiencyBonus: Scalars['Int']['output'];
   race: Scalars['String']['output'];
   speed: Scalars['Int']['output'];
   spellAttackBonus?: Maybe<Scalars['Int']['output']>;
   spellSaveDC?: Maybe<Scalars['Int']['output']>;
   spellSlots: Array<SpellSlot>;
+  spellbook: Array<CharacterSpell>;
   spellcastingAbility?: Maybe<Scalars['String']['output']>;
   stats?: Maybe<CharacterStats>;
   subclass?: Maybe<Scalars['String']['output']>;
@@ -85,8 +92,8 @@ export type CharacterFeature = {
   usesRemaining?: Maybe<Scalars['Int']['output']>;
 };
 
-export type CharacterPreparedSpell = {
-  __typename?: 'CharacterPreparedSpell';
+export type CharacterSpell = {
+  __typename?: 'CharacterSpell';
   prepared: Scalars['Boolean']['output'];
   spell: Spell;
 };
@@ -156,6 +163,15 @@ export type DeathSavesInput = {
   successes: Scalars['Int']['input'];
 };
 
+export type FeatureInput = {
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  recharge?: InputMaybe<Scalars['String']['input']>;
+  source: Scalars['String']['input'];
+  usesMax?: InputMaybe<Scalars['Int']['input']>;
+  usesRemaining?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type Hp = {
   __typename?: 'HP';
   current: Scalars['Int']['output'];
@@ -193,16 +209,39 @@ export type InventoryItem = {
   weight?: Maybe<Scalars['Float']['output']>;
 };
 
+export type InventoryItemInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  equipped?: InputMaybe<Scalars['Boolean']['input']>;
+  magical?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  addAttack: Attack;
+  addFeature: CharacterFeature;
+  addInventoryItem: InventoryItem;
   addSpellToList: SpellList;
   createCharacter: Character;
   createSpellList: SpellList;
   deleteCharacter: Scalars['Boolean']['output'];
   deleteSpellList: Scalars['Boolean']['output'];
+  forgetSpell: Scalars['Boolean']['output'];
+  learnSpell: CharacterSpell;
+  longRest: Character;
+  prepareSpell: CharacterSpell;
+  removeAttack: Scalars['Boolean']['output'];
+  removeFeature: Scalars['Boolean']['output'];
+  removeInventoryItem: Scalars['Boolean']['output'];
   removeSpellFromList: SpellList;
   renameSpellList: Scalars['Boolean']['output'];
+  shortRest: Character;
+  spendHitDie: CharacterStats;
   toggleInspiration: Character;
+  toggleSpellSlot: SpellSlot;
+  unprepareSpell: CharacterSpell;
   updateAbilityScores: CharacterStats;
   updateCharacter: Character;
   updateCurrency: CharacterStats;
@@ -212,6 +251,24 @@ export type Mutation = {
   updateSavingThrowProficiencies: CharacterStats;
   updateSkillProficiencies: CharacterStats;
   updateTraits: CharacterStats;
+};
+
+
+export type MutationAddAttackArgs = {
+  characterId: Scalars['ID']['input'];
+  input: AttackInput;
+};
+
+
+export type MutationAddFeatureArgs = {
+  characterId: Scalars['ID']['input'];
+  input: FeatureInput;
+};
+
+
+export type MutationAddInventoryItemArgs = {
+  characterId: Scalars['ID']['input'];
+  input: InventoryItemInput;
 };
 
 
@@ -241,6 +298,47 @@ export type MutationDeleteSpellListArgs = {
 };
 
 
+export type MutationForgetSpellArgs = {
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+};
+
+
+export type MutationLearnSpellArgs = {
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+};
+
+
+export type MutationLongRestArgs = {
+  characterId: Scalars['ID']['input'];
+};
+
+
+export type MutationPrepareSpellArgs = {
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveAttackArgs = {
+  attackId: Scalars['ID']['input'];
+  characterId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveFeatureArgs = {
+  characterId: Scalars['ID']['input'];
+  featureId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveInventoryItemArgs = {
+  characterId: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
+};
+
+
 export type MutationRemoveSpellFromListArgs = {
   spellId: Scalars['ID']['input'];
   spellListId: Scalars['ID']['input'];
@@ -253,8 +351,31 @@ export type MutationRenameSpellListArgs = {
 };
 
 
+export type MutationShortRestArgs = {
+  characterId: Scalars['ID']['input'];
+};
+
+
+export type MutationSpendHitDieArgs = {
+  amount?: Scalars['Int']['input'];
+  characterId: Scalars['ID']['input'];
+};
+
+
 export type MutationToggleInspirationArgs = {
   characterId: Scalars['ID']['input'];
+};
+
+
+export type MutationToggleSpellSlotArgs = {
+  characterId: Scalars['ID']['input'];
+  level: Scalars['Int']['input'];
+};
+
+
+export type MutationUnprepareSpellArgs = {
+  characterId: Scalars['ID']['input'];
+  spellId: Scalars['ID']['input'];
 };
 
 
@@ -544,16 +665,18 @@ export type ResolversTypes = {
   AbilityScores: ResolverTypeWrapper<AbilityScores>;
   AbilityScoresInput: AbilityScoresInput;
   Attack: ResolverTypeWrapper<Attack>;
+  AttackInput: AttackInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Character: ResolverTypeWrapper<PrismaCharacter>;
   CharacterFeature: ResolverTypeWrapper<CharacterFeature>;
-  CharacterPreparedSpell: ResolverTypeWrapper<CharacterPreparedSpell>;
+  CharacterSpell: ResolverTypeWrapper<PrismaCharacterSpell>;
   CharacterStats: ResolverTypeWrapper<PrismaCharacterStats>;
   CreateCharacterInput: CreateCharacterInput;
   Currency: ResolverTypeWrapper<Currency>;
   CurrencyInput: CurrencyInput;
   DeathSaves: ResolverTypeWrapper<DeathSaves>;
   DeathSavesInput: DeathSavesInput;
+  FeatureInput: FeatureInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   HP: ResolverTypeWrapper<Hp>;
   HPInput: HpInput;
@@ -562,6 +685,7 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InventoryItem: ResolverTypeWrapper<InventoryItem>;
+  InventoryItemInput: InventoryItemInput;
   Mutation: ResolverTypeWrapper<{}>;
   ProficiencyLevel: ProficiencyLevel;
   Query: ResolverTypeWrapper<{}>;
@@ -583,16 +707,18 @@ export type ResolversParentTypes = {
   AbilityScores: AbilityScores;
   AbilityScoresInput: AbilityScoresInput;
   Attack: Attack;
+  AttackInput: AttackInput;
   Boolean: Scalars['Boolean']['output'];
   Character: PrismaCharacter;
   CharacterFeature: CharacterFeature;
-  CharacterPreparedSpell: CharacterPreparedSpell;
+  CharacterSpell: PrismaCharacterSpell;
   CharacterStats: PrismaCharacterStats;
   CreateCharacterInput: CreateCharacterInput;
   Currency: Currency;
   CurrencyInput: CurrencyInput;
   DeathSaves: DeathSaves;
   DeathSavesInput: DeathSavesInput;
+  FeatureInput: FeatureInput;
   Float: Scalars['Float']['output'];
   HP: Hp;
   HPInput: HpInput;
@@ -601,6 +727,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   InventoryItem: InventoryItem;
+  InventoryItemInput: InventoryItemInput;
   Mutation: {};
   Query: {};
   SavingThrowProficienciesInput: SavingThrowProficienciesInput;
@@ -650,13 +777,13 @@ export type CharacterResolvers<ContextType = Context, ParentType extends Resolve
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  preparedSpells?: Resolver<Array<ResolversTypes['CharacterPreparedSpell']>, ParentType, ContextType>;
   proficiencyBonus?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   race?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   speed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   spellAttackBonus?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   spellSaveDC?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   spellSlots?: Resolver<Array<ResolversTypes['SpellSlot']>, ParentType, ContextType>;
+  spellbook?: Resolver<Array<ResolversTypes['CharacterSpell']>, ParentType, ContextType>;
   spellcastingAbility?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stats?: Resolver<Maybe<ResolversTypes['CharacterStats']>, ParentType, ContextType>;
   subclass?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -674,7 +801,7 @@ export type CharacterFeatureResolvers<ContextType = Context, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CharacterPreparedSpellResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CharacterPreparedSpell'] = ResolversParentTypes['CharacterPreparedSpell']> = {
+export type CharacterSpellResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CharacterSpell'] = ResolversParentTypes['CharacterSpell']> = {
   prepared?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   spell?: Resolver<ResolversTypes['Spell'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -734,14 +861,28 @@ export type InventoryItemResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addAttack?: Resolver<ResolversTypes['Attack'], ParentType, ContextType, RequireFields<MutationAddAttackArgs, 'characterId' | 'input'>>;
+  addFeature?: Resolver<ResolversTypes['CharacterFeature'], ParentType, ContextType, RequireFields<MutationAddFeatureArgs, 'characterId' | 'input'>>;
+  addInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationAddInventoryItemArgs, 'characterId' | 'input'>>;
   addSpellToList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationAddSpellToListArgs, 'spellId' | 'spellListId'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
   createSpellList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationCreateSpellListArgs, 'name'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
   deleteSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSpellListArgs, 'id'>>;
+  forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
+  learnSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationLearnSpellArgs, 'characterId' | 'spellId'>>;
+  longRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationLongRestArgs, 'characterId'>>;
+  prepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationPrepareSpellArgs, 'characterId' | 'spellId'>>;
+  removeAttack?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveAttackArgs, 'attackId' | 'characterId'>>;
+  removeFeature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveFeatureArgs, 'characterId' | 'featureId'>>;
+  removeInventoryItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveInventoryItemArgs, 'characterId' | 'itemId'>>;
   removeSpellFromList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationRemoveSpellFromListArgs, 'spellId' | 'spellListId'>>;
   renameSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRenameSpellListArgs, 'id' | 'name'>>;
+  shortRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationShortRestArgs, 'characterId'>>;
+  spendHitDie?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationSpendHitDieArgs, 'amount' | 'characterId'>>;
   toggleInspiration?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationToggleInspirationArgs, 'characterId'>>;
+  toggleSpellSlot?: Resolver<ResolversTypes['SpellSlot'], ParentType, ContextType, RequireFields<MutationToggleSpellSlotArgs, 'characterId' | 'level'>>;
+  unprepareSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationUnprepareSpellArgs, 'characterId' | 'spellId'>>;
   updateAbilityScores?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateAbilityScoresArgs, 'characterId' | 'input'>>;
   updateCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationUpdateCharacterArgs, 'id' | 'input'>>;
   updateCurrency?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationUpdateCurrencyArgs, 'characterId' | 'input'>>;
@@ -830,7 +971,7 @@ export type Resolvers<ContextType = Context> = {
   Attack?: AttackResolvers<ContextType>;
   Character?: CharacterResolvers<ContextType>;
   CharacterFeature?: CharacterFeatureResolvers<ContextType>;
-  CharacterPreparedSpell?: CharacterPreparedSpellResolvers<ContextType>;
+  CharacterSpell?: CharacterSpellResolvers<ContextType>;
   CharacterStats?: CharacterStatsResolvers<ContextType>;
   Currency?: CurrencyResolvers<ContextType>;
   DeathSaves?: DeathSavesResolvers<ContextType>;

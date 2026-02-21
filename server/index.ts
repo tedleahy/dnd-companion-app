@@ -57,6 +57,23 @@ const resolvers: Resolvers = {
         updateTraits: characterResolvers.updateTraits,
         updateCurrency: characterResolvers.updateCurrency,
         updateSavingThrowProficiencies: characterResolvers.updateSavingThrowProficiencies,
+
+        learnSpell: characterResolvers.learnSpell,
+        forgetSpell: characterResolvers.forgetSpell,
+        prepareSpell: characterResolvers.prepareSpell,
+        unprepareSpell: characterResolvers.unprepareSpell,
+        toggleSpellSlot: characterResolvers.toggleSpellSlot,
+
+        addAttack: characterResolvers.addAttack,
+        removeAttack: characterResolvers.removeAttack,
+        addInventoryItem: characterResolvers.addInventoryItem,
+        removeInventoryItem: characterResolvers.removeInventoryItem,
+        addFeature: characterResolvers.addFeature,
+        removeFeature: characterResolvers.removeFeature,
+
+        spendHitDie: characterResolvers.spendHitDie,
+        shortRest: characterResolvers.shortRest,
+        longRest: characterResolvers.longRest,
     },
 
     SpellList: {
@@ -69,7 +86,7 @@ const resolvers: Resolvers = {
         inventory: characterResolvers.characterInventory,
         features: characterResolvers.characterFeatures,
         spellSlots: characterResolvers.characterSpellSlots,
-        preparedSpells: characterResolvers.characterPreparedSpells,
+        spellbook: characterResolvers.characterSpellbook,
     },
 };
 

@@ -64,7 +64,7 @@ type Character {
     inventory: [InventoryItem!]!
     features: [CharacterFeature!]!
     spellSlots: [SpellSlot!]!
-    preparedSpells: [CharacterPreparedSpell!]!
+    spellbook: [CharacterSpell!]!
 }
 
 type CharacterStats {
@@ -182,7 +182,7 @@ type SpellSlot {
     used: Int!
 }
 
-type CharacterPreparedSpell {
+type CharacterSpell {
     spell: Spell!
     prepared: Boolean!
 }
@@ -300,6 +300,31 @@ input SavingThrowProficienciesInput {
     proficiencies: [String!]!
 }
 
+input AttackInput {
+    name: String!
+    attackBonus: String!
+    damage: String!
+    type: String!
+}
+
+input InventoryItemInput {
+    name: String!
+    quantity: Int
+    weight: Float
+    description: String
+    equipped: Boolean
+    magical: Boolean
+}
+
+input FeatureInput {
+    name: String!
+    source: String!
+    description: String!
+    usesMax: Int
+    usesRemaining: Int
+    recharge: String
+}
+
 # ---------------------------------------------------------------------------
 # Queries & Mutations
 # ---------------------------------------------------------------------------
@@ -335,4 +360,24 @@ type Mutation {
     updateTraits(characterId: ID!, input: TraitsInput!): CharacterStats!
     updateCurrency(characterId: ID!, input: CurrencyInput!): CharacterStats!
     updateSavingThrowProficiencies(characterId: ID!, input: SavingThrowProficienciesInput!): CharacterStats!
+
+    # Spellbook / spell slots
+    learnSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    forgetSpell(characterId: ID!, spellId: ID!): Boolean!
+    prepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    unprepareSpell(characterId: ID!, spellId: ID!): CharacterSpell!
+    toggleSpellSlot(characterId: ID!, level: Int!): SpellSlot!
+
+    # Gear / features
+    addAttack(characterId: ID!, input: AttackInput!): Attack!
+    removeAttack(characterId: ID!, attackId: ID!): Boolean!
+    addInventoryItem(characterId: ID!, input: InventoryItemInput!): InventoryItem!
+    removeInventoryItem(characterId: ID!, itemId: ID!): Boolean!
+    addFeature(characterId: ID!, input: FeatureInput!): CharacterFeature!
+    removeFeature(characterId: ID!, featureId: ID!): Boolean!
+
+    # Rest / recovery
+    spendHitDie(characterId: ID!, amount: Int! = 1): CharacterStats!
+    shortRest(characterId: ID!): Character!
+    longRest(characterId: ID!): Character!
 }
