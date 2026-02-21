@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Card, Divider, HelperText, Text } from 'react-native-paper';
@@ -89,7 +90,7 @@ export default function SignIn() {
                         textColor={fantasyTokens.colors.crimson}
                         onPress={() => router.push('/(auth)/sign-up')}
                     >
-                        I don't have an account yet
+                       I don't have an account yet
                     </Button>
                 </Card.Content>
             </Card>

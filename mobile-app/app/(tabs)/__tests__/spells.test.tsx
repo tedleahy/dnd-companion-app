@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
@@ -40,11 +40,6 @@ const SPELLS_MOCK: MockLink.MockedResponse = {
             ],
         },
     },
-};
-
-const EMPTY_MOCK: MockLink.MockedResponse = {
-    request: { query: SEARCH_SPELLS },
-    result: { data: { spells: [] } },
 };
 
 function renderScreen(mocks: MockLink.MockedResponse[] = [SPELLS_MOCK]) {

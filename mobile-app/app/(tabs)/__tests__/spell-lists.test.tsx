@@ -20,15 +20,6 @@ const GET_SPELL_LISTS = gql`
     }
 `;
 
-const CREATE_SPELL_LIST = gql`
-    mutation CreateSpellList($name: String!) {
-        createSpellList(name: $name) {
-            id
-            name
-        }
-    }
-`;
-
 const LISTS_MOCK: MockLink.MockedResponse = {
     request: { query: GET_SPELL_LISTS },
     result: {
