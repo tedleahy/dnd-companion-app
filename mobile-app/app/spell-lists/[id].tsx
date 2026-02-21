@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Dialog, IconButton, Portal, Text, TextInput } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { gql } from '@apollo/client';
+import { gql, NetworkStatus } from '@apollo/client';
 import { useQuery, useMutation } from '@apollo/client/react';
 import SpellList from '@/components/SpellList';
 import { fantasyTokens } from '@/theme/fantasyTheme';
@@ -33,11 +33,11 @@ const DELETE_SPELL_LIST = gql`
 `;
 
 type SpellListData = {
-    currentUserSpellLists: Array<{
+    currentUserSpellLists?: {
         id: string;
         name: string;
-        spells: Array<{ id: string; name: string }>;
-    }>;
+        spells: { id: string; name: string }[];
+    }[];
 };
 
 export default function SpellListDetail() {
@@ -46,7 +46,10 @@ export default function SpellListDetail() {
     const [renameDialogVisible, setRenameDialogVisible] = useState(false);
     const [newName, setNewName] = useState('');
 
-    const { data, loading } = useQuery<SpellListData>(GET_SPELL_LIST);
+    const { data, loading, networkStatus } = useQuery<SpellListData>(GET_SPELL_LIST, {
+        notifyOnNetworkStatusChange: true,
+        returnPartialData: true,
+    });
 
     const [renameSpellList] = useMutation(RENAME_SPELL_LIST, {
         refetchQueries: [{ query: GET_SPELL_LIST }],
@@ -54,7 +57,13 @@ export default function SpellListDetail() {
 
     const [deleteSpellList] = useMutation(DELETE_SPELL_LIST);
 
-    const spellList = data?.currentUserSpellLists.find((list) => list.id === id);
+    const spellList = data?.currentUserSpellLists?.find((list) => list.id === id);
+    const spellItems = (spellList?.spells ?? []).flatMap((spell) => {
+        if (!spell?.id || !spell?.name) return [];
+        return [{ id: spell.id, name: spell.name }];
+    });
+    const isInitialLoading = loading && !spellList;
+    const isRefetching = networkStatus === NetworkStatus.refetch && !!spellList;
 
     async function handleRename() {
         if (!newName.trim() || !id) return;
@@ -79,7 +88,7 @@ export default function SpellListDetail() {
         }
     }
 
-    if (loading) {
+    if (isInitialLoading) {
         return (
             <View style={styles.centered}>
                 <ActivityIndicator />
@@ -110,7 +119,7 @@ export default function SpellListDetail() {
                     icon="pencil"
                     iconColor={fantasyTokens.colors.gold}
                     onPress={() => {
-                        setNewName(spellList.name);
+                        setNewName(spellList.name ?? '');
                         setRenameDialogVisible(true);
                     }}
                 />
@@ -121,14 +130,14 @@ export default function SpellListDetail() {
                 />
             </View>
 
-            {spellList.spells.length === 0 ? (
+            {spellItems.length === 0 ? (
                 <View style={styles.centered}>
                     <Text style={styles.emptyText}>
                         No spells in this list yet.{'\n'}Add spells from the spell detail page.
                     </Text>
                 </View>
             ) : (
-                <SpellList spells={spellList.spells} loading={false} />
+                <SpellList spells={spellItems} loading={isRefetching} />
             )}
 
             <Portal>

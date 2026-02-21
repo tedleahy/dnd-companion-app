@@ -8,6 +8,7 @@
         "android": "expo start --android",
         "ios": "expo start --ios",
         "web": "expo start --web",
+        "web-local": "expo start --web --localhost",
         "lint": "expo lint",
         "codegen": "graphql-codegen --config codegen.yml",
         "test": "NODE_OPTIONS='--no-experimental-webstorage' jest"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Chip, Dialog, Divider, List, MD3Theme, Portal, Snackbar, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Chip, Dialog, Divider, List, Portal, Snackbar, Text } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
 import { fantasyTokens } from '../../theme/fantasyTheme';
 import { gql } from '@apollo/client';
@@ -66,7 +66,7 @@ export default function SpellDetails() {
     });
     if (error) console.error(`Error loading spell details: ${error}`);
 
-    const { data: listsData } = useQuery<{ currentUserSpellLists: Array<{ id: string; name: string }> }>(GET_SPELL_LISTS);
+    const { data: listsData } = useQuery<{ currentUserSpellLists: { id: string; name: string }[] }>(GET_SPELL_LISTS);
     const [addSpellToList] = useMutation(ADD_SPELL_TO_LIST);
 
     async function handleAddToList(spellListId: string, listName: string) {

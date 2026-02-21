@@ -23,6 +23,12 @@ export const fantasyTokens = {
         md: 16,
         lg: 18,
     },
+    motion: {
+        quick: 160,
+        standard: 240,
+        gentle: 320,
+        stagger: 36,
+    },
 };
 
 export function buildFantasyTheme(colorScheme: string | null | undefined): MD3Theme {
