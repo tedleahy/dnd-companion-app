@@ -15,7 +15,24 @@ export default function RootLayout() {
             <SafeAreaView style={styles.safeArea}>
                 <ApolloProvider client={apolloClient}>
                     <PaperProvider theme={theme}>
-                        <Stack screenOptions={{ headerShown: false }} />
+                        <Stack
+                            screenOptions={{
+                                headerShown: false,
+                                contentStyle: { backgroundColor: fantasyTokens.colors.night },
+                                animation: 'fade_from_bottom',
+                                animationDuration: fantasyTokens.motion.standard,
+                            }}
+                        >
+                            <Stack.Screen name="(tabs)" options={{ animation: 'none' }} />
+                            <Stack.Screen
+                                name="spells/[id]"
+                                options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
+                            />
+                            <Stack.Screen
+                                name="spell-lists/[id]"
+                                options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
+                            />
+                        </Stack>
                     </PaperProvider>
                 </ApolloProvider>
             </SafeAreaView>
