@@ -36,8 +36,20 @@ export default function SpellSearch() {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         filters: EMPTY_FILTERS,
     });
+    const [pendingSearchName, setPendingSearchName] = useState('');
     const [drawerVisible, setDrawerVisible] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setSearchParams((prev) => ({
+                ...prev,
+                name: pendingSearchName.trim() || undefined,
+            }));
+        }, fantasyTokens.motion.quick);
+
+        return () => clearTimeout(timeoutId);
+    }, [pendingSearchName]);
 
     /**
      * Converts the current {@link SearchParams} into the GraphQL `SpellFilter`
@@ -64,14 +76,19 @@ export default function SpellSearch() {
 
     const { data, loading, error } = useQuery<SpellsQuery>(SEARCH_SPELLS, {
         variables: { filter: buildFilterVariable() },
+        notifyOnNetworkStatusChange: true,
+        returnPartialData: true,
     });
     const isUnauthenticated = error?.message === 'UNAUTHENTICATED';
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
-    }, [isUnauthenticated]);
+    }, [isUnauthenticated, router]);
 
-    const spells = data?.spells ?? [];
+    const spells = (data?.spells ?? []).flatMap((spell) => {
+        if (!spell?.id || !spell?.name) return [];
+        return [{ id: spell.id, name: spell.name }];
+    });
 
     const activeFilterCount =
         searchParams.filters.classes.length +
@@ -101,8 +118,8 @@ export default function SpellSearch() {
                     iconColor={fantasyTokens.colors.ember}
                     placeholderTextColor={fantasyTokens.colors.inkSoft}
                     placeholder="Search spells..."
-                    onChangeText={(text) => setSearchParams((prev) => ({ ...prev, name: text }))}
-                    value={searchParams.name || ''}
+                    onChangeText={setPendingSearchName}
+                    value={pendingSearchName}
                 />
                 <IconButton
                     icon="logout"
