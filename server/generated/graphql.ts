@@ -1,6 +1,6 @@
-import { type GraphQLResolveInfo } from 'graphql';
-import { type SpellList as PrismaSpellList } from '@prisma/client';
-import { type Context } from '..';
+import { GraphQLResolveInfo } from 'graphql';
+import { SpellList as PrismaSpellList } from '@prisma/client';
+import { Context } from './index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -88,6 +88,7 @@ export type Spell = {
   range?: Maybe<Scalars['String']['output']>;
   ritual: Scalars['Boolean']['output'];
   schoolIndex: Scalars['String']['output'];
+  sourceBook?: Maybe<Scalars['String']['output']>;
 };
 
 export type SpellFilter = {
@@ -228,6 +229,7 @@ export type SpellResolvers<ContextType = Context, ParentType extends ResolversPa
   range?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ritual?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   schoolIndex?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sourceBook?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

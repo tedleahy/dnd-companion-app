@@ -20,6 +20,7 @@ export default async function spellResolver(_parent: unknown, args: Partial<Quer
                 duration: true,
                 concentration: true,
                 castingTime: true,
+                sourceBook: true,
             },
         });
     } catch (error) {

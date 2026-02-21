@@ -45,6 +45,7 @@ export default async function spellsResolver(
                 duration: true,
                 concentration: true,
                 castingTime: true,
+                sourceBook: true,
             },
         });
     } catch (error) {
