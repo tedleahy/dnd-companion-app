@@ -7,6 +7,7 @@ import { gql } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { DetailRow, ParchmentPanel, RuneDivider } from '../../components/FantasyPrimitives';
 import { Spell } from '../../types/generated_graphql_types';
+import { schoolAndLevelLabel } from '../../lib/spellUtils';
 
 const GET_SPELL_LISTS = gql`
     query SpellDetailLists {
@@ -211,21 +212,6 @@ export default function SpellDetails() {
             </Snackbar>
         </ScrollView>
     );
-}
-
-function schoolAndLevelLabel({ level, schoolIndex }: Spell): string {
-    const school = schoolIndex.replace(/\b\w/g, (match) => match.toUpperCase());
-
-    if (level === 0) return `${school} Cantrip`;
-
-    const suffixes: Record<number,string> = {
-        1: 'st',
-        2: 'nd',
-        3: 'rd',
-    };
-    const suffix = suffixes[level] ?? 'th';
-
-    return `${level}${suffix} level ${school}`;
 }
 
 const styles = StyleSheet.create({
