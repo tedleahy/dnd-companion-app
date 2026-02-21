@@ -1,12 +1,12 @@
-import { StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Divider, FAB, List, Text } from 'react-native-paper';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Button, Dialog, Divider, FAB, List, Portal, ProgressBar, Text, TextInput } from 'react-native-paper';
 import { useQuery, useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
+import { gql, NetworkStatus } from '@apollo/client';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
-import { FlatList } from 'react-native';
 import { useState } from 'react';
-import { Button, Dialog, Portal, TextInput } from 'react-native-paper';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import ListSkeletonRows from '@/components/ListSkeletonRows';
 
 const GET_SPELL_LISTS = gql`
     query CurrentUserSpellLists {
@@ -31,7 +31,10 @@ export default function SpellListsScreen() {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [newListName, setNewListName] = useState('');
 
-    const { data, loading } = useQuery<{ currentUserSpellLists: Array<{ id: string; name: string }> }>(GET_SPELL_LISTS);
+    const { data, loading, networkStatus } = useQuery<{ currentUserSpellLists: { id: string; name: string }[] }>(GET_SPELL_LISTS, {
+        notifyOnNetworkStatusChange: true,
+        returnPartialData: true,
+    });
     const [createSpellList] = useMutation(CREATE_SPELL_LIST, {
         refetchQueries: [{ query: GET_SPELL_LISTS }],
     });
@@ -48,16 +51,19 @@ export default function SpellListsScreen() {
         }
     }
 
-    const spellLists = data?.currentUserSpellLists ?? [];
+    const spellLists = (data?.currentUserSpellLists ?? []).flatMap((list) => {
+        if (!list?.id || !list?.name) return [];
+        return [{ id: list.id, name: list.name }];
+    });
+    const isInitialLoading = loading && spellLists.length === 0;
+    const isRefetching = networkStatus === NetworkStatus.refetch && spellLists.length > 0;
 
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Spell Lists</Text>
 
-            {loading ? (
-                <View style={styles.centered}>
-                    <ActivityIndicator />
-                </View>
+            {isInitialLoading ? (
+                <ListSkeletonRows rowCount={6} />
             ) : spellLists.length === 0 ? (
                 <View style={styles.centered}>
                     <Text style={styles.emptyText}>
@@ -65,24 +71,32 @@ export default function SpellListsScreen() {
                     </Text>
                 </View>
             ) : (
-                <FlatList
-                    data={spellLists}
-                    contentContainerStyle={styles.listContent}
-                    renderItem={({ item }) => (
-                        <>
-                            <List.Item
-                                title={item.name}
-                                titleStyle={styles.listItemTitle}
-                                style={styles.listItem}
-                                onPress={() => router.push(`/spell-lists/${item.id}`)}
-                                right={(props) => (
-                                    <List.Icon {...props} icon="chevron-right" color={fantasyTokens.colors.gold} />
-                                )}
-                            />
-                            <Divider style={styles.divider} />
-                        </>
-                    )}
-                />
+                <View style={styles.listWrapper}>
+                    {isRefetching && <ProgressBar indeterminate color={fantasyTokens.colors.gold} style={styles.progressBar} />}
+                    <FlatList
+                        data={spellLists}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                        renderItem={({ item, index }) => (
+                            <Animated.View
+                                entering={FadeInDown.duration(fantasyTokens.motion.standard)
+                                    .delay(Math.min(index, 8) * fantasyTokens.motion.stagger)
+                                    .springify()}
+                            >
+                                <List.Item
+                                    title={item.name}
+                                    titleStyle={styles.listItemTitle}
+                                    style={styles.listItem}
+                                    onPress={() => router.push(`/spell-lists/${item.id}`)}
+                                    right={(props) => (
+                                        <List.Icon {...props} icon="chevron-right" color={fantasyTokens.colors.gold} />
+                                    )}
+                                />
+                                <Divider style={styles.divider} />
+                            </Animated.View>
+                        )}
+                    />
+                </View>
             )}
 
             <FAB
@@ -158,6 +172,14 @@ const styles = StyleSheet.create({
     listContent: {
         backgroundColor: fantasyTokens.colors.parchmentDeep,
         paddingBottom: fantasyTokens.spacing.lg,
+    },
+    listWrapper: {
+        flex: 1,
+        backgroundColor: fantasyTokens.colors.parchmentDeep,
+    },
+    progressBar: {
+        height: 3,
+        backgroundColor: 'rgba(196, 164, 112, 0.2)',
     },
     listItem: {
         backgroundColor: fantasyTokens.colors.parchmentDeep,
