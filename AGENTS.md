@@ -31,6 +31,7 @@ GraphQL API shape
 Coding conventions
 - TypeScript everywhere.
 - Keep components simple and modern; use react-native-paper patterns.
+- Avoid having multiple components in the same file where possible.
 - Prefer small, composable modules; avoid overengineering early.
 - Use function foo() {} instead of const foo = () => {}, except for one-liners
 - Use async/await in a try/catch block instead of .then(), .catch(), etc., where possible
