@@ -13,6 +13,7 @@ type Spell {
     duration: String
     concentration: Boolean!
     castingTime: String!
+    sourceBook: String
 }
 
 input SpellFilter {

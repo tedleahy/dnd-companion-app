@@ -84,6 +84,7 @@ export type Spell = {
   range?: Maybe<Scalars['String']['output']>;
   ritual: Scalars['Boolean']['output'];
   schoolIndex: Scalars['String']['output'];
+  sourceBook?: Maybe<Scalars['String']['output']>;
 };
 
 export type SpellFilter = {
