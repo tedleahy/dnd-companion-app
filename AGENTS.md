@@ -35,9 +35,26 @@ Coding conventions
 - Prefer small, composable modules; avoid overengineering early.
 - Use function foo() {} instead of const foo = () => {}, except for one-liners
 - Use async/await in a try/catch block instead of .then(), .catch(), etc., where possible
+- When creating components, check existing components to see if there is anything similar that could be reused/extended to reduce duplication.
+- Avoid creating functions/variables that are only used once, unless doing so improves readability.
 
 UI style
 - Give the app a fantasy-style look and feel to it.
+
+Git Commits
+- Group changes into commits and write detailed commit messages for each of them.
+- Follow these general examples for formatting them:
+    - feat(mobile): Added x screen to y tab, allowing user to do z
+    - feat(api): Updated spell resolvers to give x information to support the y feature
+    - refactor(mobile): Split x component out
+    - refactor(api): Moved x resolvers into their own file
+    - chore: document x in AGENTS.md
+    - chore: add jest config and dependencies
+    - bug(mobile): fixed bug where x was happening
+    - bug(api): fixed bug where x was happening
+- You don't have to stick to those exact prefixes, but do that sort of thing - type of commit followed
+  by (mobile) or (api) if applicable
+- Add bullet points on separate lines where it would be useful to add extra detail.
 
 General instructions
 - The main goal in making this app is learning React Native and GraphQL. Explain new concepts relating to these technologies. You can assume React web knowledge and REST API knowledge, but assume no knowledge of graphql or native-specific things. So when you tell me how to do something graphql or react native specific, use it as a teaching opportunity.
