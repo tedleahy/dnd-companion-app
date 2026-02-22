@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
-import { SectionList, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import {
     ABILITY_KEYS,
@@ -218,41 +218,43 @@ export default function SkillsTab({
                             <Text style={styles.emptyText}>No skills match this search.</Text>
                         </View>
                     ) : (
-                        <SectionList
-                            sections={sections}
-                            keyExtractor={(skill) => skill.key}
-                            stickySectionHeadersEnabled
+                        <ScrollView
                             showsVerticalScrollIndicator={false}
                             style={styles.sectionList}
                             contentContainerStyle={styles.sectionListContent}
-                            renderSectionHeader={({ section }) => (
-                                <SkillGroupHeader
-                                    abilityLabel={section.abilityLabel}
-                                    abilityScore={section.abilityScore}
-                                    abilityModifier={section.abilityMod}
-                                    isHighestAbility={section.isHighestAbility}
-                                />
-                            )}
-                            renderItem={({ item }) => {
-                                const proficiencyLevel = state.localSkillProficiencies[item.key];
-                                const modifier = skillModifier(
-                                    abilityScores[item.ability],
-                                    proficiencyLevel,
-                                    proficiencyBonus,
-                                );
-
-                                return (
-                                    <SkillRow
-                                        skillKey={item.key}
-                                        skillLabel={item.label}
-                                        ability={item.ability}
-                                        proficiencyLevel={proficiencyLevel}
-                                        modifier={modifier}
-                                        onPress={handleSkillPress}
+                        >
+                            {sections.map((section) => (
+                                <View key={section.ability}>
+                                    <SkillGroupHeader
+                                        abilityLabel={section.abilityLabel}
+                                        abilityScore={section.abilityScore}
+                                        abilityModifier={section.abilityMod}
+                                        isHighestAbility={section.isHighestAbility}
                                     />
-                                );
-                            }}
-                        />
+
+                                    {section.data.map((item) => {
+                                        const proficiencyLevel = state.localSkillProficiencies[item.key];
+                                        const modifier = skillModifier(
+                                            abilityScores[item.ability],
+                                            proficiencyLevel,
+                                            proficiencyBonus,
+                                        );
+
+                                        return (
+                                            <SkillRow
+                                                key={item.key}
+                                                skillKey={item.key}
+                                                skillLabel={item.label}
+                                                ability={item.ability}
+                                                proficiencyLevel={proficiencyLevel}
+                                                modifier={modifier}
+                                                onPress={handleSkillPress}
+                                            />
+                                        );
+                                    })}
+                                </View>
+                            ))}
+                        </ScrollView>
                     )}
 
                     <CardDivider />

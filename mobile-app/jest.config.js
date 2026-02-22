@@ -3,6 +3,9 @@ module.exports = {
     preset: 'jest-expo',
     setupFilesAfterEnv: ['./jest-setup.ts'],
     moduleNameMapper: {
+        '^@expo/vector-icons$': '<rootDir>/test-mocks/expo-vector-icons.tsx',
+        '^@expo/vector-icons/(.*)$': '<rootDir>/test-mocks/expo-vector-icons.tsx',
+        '^react-native-vector-icons/(.*)$': '<rootDir>/test-mocks/expo-vector-icons.tsx',
         '^@/(.*)$': '<rootDir>/$1',
     },
     transformIgnorePatterns: [

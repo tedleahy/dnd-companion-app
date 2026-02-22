@@ -44,3 +44,4 @@ General instructions
 - If you encounter any particular pain points when executing tasks, reflect on them afterwards and make changes to this file to help you navigate the same issues more quickly in future.
 - Shell/testing note: quote paths that contain route-group parentheses (for example `app/(tabs)/...`) when using `zsh` commands, and prefer broad Jest patterns (for example `yarn test character-sheet.test.tsx`) over literal `app/(tabs)/...` paths to avoid glob/pattern mismatches.
 - React Native testing note: `SectionList` virtualizes rows, so off-screen items may not exist in the test tree. In tests, filter/search first or scroll before asserting/pressing deep list rows.
+- GraphQL codegen note: `mobile-app/codegen.yml` currently scans `app/**/*.tsx` documents only. GraphQL operations in `mobile-app/graphql/*.ts` will not auto-refresh operation result/variables types unless moved into scanned files or the config is expanded.

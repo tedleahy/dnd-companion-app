@@ -1,8 +1,9 @@
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SheetCard from './SheetCard';
 import SectionLabel from './SectionLabel';
+import PipTrack from './PipTrack';
 
 type DeathSavesCardProps = {
     successes: number;
@@ -36,40 +37,36 @@ export default function DeathSavesCard({ successes, failures, onUpdate }: DeathS
             <View style={styles.row}>
                 <View style={styles.column}>
                     <Text style={styles.columnLabel}>Successes</Text>
-                    <View style={styles.circles}>
-                        {[0, 1, 2].map((i) => (
-                            <Pressable
-                                key={i}
-                                onPress={() => handleSuccessTap(i)}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Death save success ${i + 1}`}
-                            >
-                                <View style={[
-                                    styles.circle,
-                                    i < successes ? styles.successFilled : styles.circleEmpty,
-                                ]} testID={`death-save-success-circle-${i + 1}`} />
-                            </Pressable>
-                        ))}
-                    </View>
+                    <PipTrack
+                        count={3}
+                        filledCount={successes}
+                        onPressPip={handleSuccessTap}
+                        getAccessibilityLabel={(index) => `Death save success ${index + 1}`}
+                        getTestID={(index) => `death-save-success-circle-${index + 1}`}
+                        size={16}
+                        gap={6}
+                        borderWidth={1.5}
+                        filledColor={fantasyTokens.colors.greenDark}
+                        filledBorderColor={fantasyTokens.colors.greenDark}
+                        emptyBorderColor={fantasyTokens.colors.divider}
+                    />
                 </View>
 
                 <View style={styles.column}>
                     <Text style={styles.columnLabel}>Failures</Text>
-                    <View style={styles.circles}>
-                        {[0, 1, 2].map((i) => (
-                            <Pressable
-                                key={i}
-                                onPress={() => handleFailureTap(i)}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Death save failure ${i + 1}`}
-                            >
-                                <View style={[
-                                    styles.circle,
-                                    i < failures ? styles.failureFilled : styles.circleEmpty,
-                                ]} testID={`death-save-failure-circle-${i + 1}`} />
-                            </Pressable>
-                        ))}
-                    </View>
+                    <PipTrack
+                        count={3}
+                        filledCount={failures}
+                        onPressPip={handleFailureTap}
+                        getAccessibilityLabel={(index) => `Death save failure ${index + 1}`}
+                        getTestID={(index) => `death-save-failure-circle-${index + 1}`}
+                        size={16}
+                        gap={6}
+                        borderWidth={1.5}
+                        filledColor={fantasyTokens.colors.crimson}
+                        filledBorderColor={fantasyTokens.colors.crimson}
+                        emptyBorderColor={fantasyTokens.colors.divider}
+                    />
                 </View>
             </View>
         </SheetCard>
@@ -94,28 +91,5 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         color: 'rgba(61,43,31,0.45)',
         marginBottom: 8,
-    },
-    circles: {
-        flexDirection: 'row',
-        gap: 6,
-    },
-    circle: {
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-    },
-    circleEmpty: {
-        borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.divider,
-    },
-    successFilled: {
-        backgroundColor: fantasyTokens.colors.greenDark,
-        borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.greenDark,
-    },
-    failureFilled: {
-        backgroundColor: fantasyTokens.colors.crimson,
-        borderWidth: 1.5,
-        borderColor: fantasyTokens.colors.crimson,
     },
 });
