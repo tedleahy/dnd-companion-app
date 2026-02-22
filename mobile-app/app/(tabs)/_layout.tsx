@@ -21,6 +21,15 @@ export default function TabsLayout() {
             }}
         >
             <Tabs.Screen
+                name="character-sheet"
+                options={{
+                    title: 'Sheet',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="shield-account" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="spells"
                 options={{
                     title: 'Spells',

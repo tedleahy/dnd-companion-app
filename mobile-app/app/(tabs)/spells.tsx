@@ -9,6 +9,7 @@ import { gql } from '@apollo/client';
 import { SpellsQuery } from '@/types/generated_graphql_types';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
+import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 
 /** Parameters driving the spell search: optional name substring and structured filters. */
 type SearchParams = {
@@ -79,7 +80,7 @@ export default function SpellSearch() {
         notifyOnNetworkStatusChange: true,
         returnPartialData: true,
     });
-    const isUnauthenticated = error?.message === 'UNAUTHENTICATED';
+    const isUnauthenticated = isUnauthenticatedError(error);
 
     useEffect(() => {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
