@@ -5,7 +5,8 @@ generates:
       - typescript
       - typescript-resolvers
     config:
-      contextType: ./index#Context
+      contextType: ../index#Context
+      useTypeImports: true
       mappers:
         SpellList: "@prisma/client#SpellList as PrismaSpellList"
         Character: "@prisma/client#Character as PrismaCharacter"

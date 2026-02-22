@@ -36,6 +36,9 @@ import prisma from "../prisma/prisma";
 // Helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Default skill proficiency map for new characters.
+ */
 const DEFAULT_SKILL_PROFICIENCIES = {
     acrobatics: 'none',
     animalHandling: 'none',
@@ -57,9 +60,42 @@ const DEFAULT_SKILL_PROFICIENCIES = {
     survival: 'none',
 };
 
-const DEFAULT_TRAITS = { personality: '', ideals: '', bonds: '', flaws: '' };
+/**
+ * Default editable personality/metadata fields for a new character.
+ */
+const DEFAULT_TRAITS = {
+    personality: '',
+    ideals: '',
+    bonds: '',
+    flaws: '',
+    armorProficiencies: [] as string[],
+    weaponProficiencies: [] as string[],
+    toolProficiencies: [] as string[],
+    languages: [] as string[],
+};
+/**
+ * Default starting currency for a new character.
+ */
 const DEFAULT_CURRENCY = { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 };
 
+/**
+ * Returns a shallow copy with null/undefined properties removed.
+ */
+function stripNullishFields<T extends Record<string, unknown>>(input: T): Partial<T> {
+    const data: Partial<T> = {};
+
+    for (const [key, value] of Object.entries(input)) {
+        if (value !== undefined && value !== null) {
+            data[key as keyof T] = value as T[keyof T];
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Returns a character only if it belongs to the authenticated user.
+ */
 async function findOwnedCharacter(characterId: string, userId: string) {
     const character = await prisma.character.findFirst({
         where: { id: characterId, ownerUserId: userId },
@@ -68,6 +104,9 @@ async function findOwnedCharacter(characterId: string, userId: string) {
     return character;
 }
 
+/**
+ * Returns character stats only if the parent character is owned by the user.
+ */
 async function findOwnedStats(characterId: string, userId: string) {
     await findOwnedCharacter(characterId, userId);
     const stats = await prisma.characterStats.findUnique({
@@ -81,6 +120,9 @@ async function findOwnedStats(characterId: string, userId: string) {
 // Query resolvers
 // ---------------------------------------------------------------------------
 
+/**
+ * Query resolver for a single owned character by id.
+ */
 export async function character(
     _parent: unknown,
     { id }: QueryCharacterArgs,
@@ -93,6 +135,9 @@ export async function character(
     });
 }
 
+/**
+ * Query resolver for all characters owned by the current user.
+ */
 export async function currentUserCharacters(
     _parent: unknown,
     _args: unknown,
@@ -110,6 +155,9 @@ export async function currentUserCharacters(
 // Character lifecycle mutations
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a character and nested stats row with sensible defaults.
+ */
 export async function createCharacter(
     _parent: unknown,
     { input }: MutationCreateCharacterArgs,
@@ -148,6 +196,9 @@ export async function createCharacter(
     });
 }
 
+/**
+ * Updates character top-level fields that are provided in input.
+ */
 export async function updateCharacter(
     _parent: unknown,
     { id, input }: MutationUpdateCharacterArgs,
@@ -157,13 +208,7 @@ export async function updateCharacter(
 
     const existing = await findOwnedCharacter(id, userId);
 
-    // Strip null/undefined values so we only update provided fields
-    const data: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(input)) {
-        if (value !== undefined && value !== null) {
-            data[key] = value;
-        }
-    }
+    const data = stripNullishFields(input);
 
     return await prisma.character.update({
         where: { id: existing.id },
@@ -171,6 +216,9 @@ export async function updateCharacter(
     });
 }
 
+/**
+ * Deletes an owned character by id.
+ */
 export async function deleteCharacter(
     _parent: unknown,
     { id }: MutationDeleteCharacterArgs,
@@ -187,6 +235,9 @@ export async function deleteCharacter(
     return true;
 }
 
+/**
+ * Toggles inspiration on/off for an owned character.
+ */
 export async function toggleInspiration(
     _parent: unknown,
     { characterId }: MutationToggleInspirationArgs,
@@ -205,6 +256,9 @@ export async function toggleInspiration(
 // Per-domain stats mutations
 // ---------------------------------------------------------------------------
 
+/**
+ * Replaces the ability score object for an owned character.
+ */
 export async function updateAbilityScores(
     _parent: unknown,
     { characterId, input }: MutationUpdateAbilityScoresArgs,
@@ -219,6 +273,9 @@ export async function updateAbilityScores(
     });
 }
 
+/**
+ * Replaces HP values for an owned character.
+ */
 export async function updateHP(
     _parent: unknown,
     { characterId, input }: MutationUpdateHpArgs,
@@ -233,6 +290,9 @@ export async function updateHP(
     });
 }
 
+/**
+ * Replaces death save values for an owned character.
+ */
 export async function updateDeathSaves(
     _parent: unknown,
     { characterId, input }: MutationUpdateDeathSavesArgs,
@@ -247,6 +307,9 @@ export async function updateDeathSaves(
     });
 }
 
+/**
+ * Replaces hit dice values for an owned character.
+ */
 export async function updateHitDice(
     _parent: unknown,
     { characterId, input }: MutationUpdateHitDiceArgs,
@@ -261,6 +324,9 @@ export async function updateHitDice(
     });
 }
 
+/**
+ * Partially updates skill proficiency fields, preserving unspecified values.
+ */
 export async function updateSkillProficiencies(
     _parent: unknown,
     { characterId, input }: MutationUpdateSkillProficienciesArgs,
@@ -284,6 +350,9 @@ export async function updateSkillProficiencies(
     });
 }
 
+/**
+ * Merges editable trait fields over existing trait metadata.
+ */
 export async function updateTraits(
     _parent: unknown,
     { characterId, input }: MutationUpdateTraitsArgs,
@@ -291,13 +360,17 @@ export async function updateTraits(
 ) {
     const userId = requireUser(ctx);
     const stats = await findOwnedStats(characterId, userId);
+    const existingTraits = stats.traits as Record<string, unknown>;
 
     return await prisma.characterStats.update({
         where: { id: stats.id },
-        data: { traits: input },
+        data: { traits: { ...existingTraits, ...input } },
     });
 }
 
+/**
+ * Replaces the currency object for an owned character.
+ */
 export async function updateCurrency(
     _parent: unknown,
     { characterId, input }: MutationUpdateCurrencyArgs,
@@ -312,6 +385,9 @@ export async function updateCurrency(
     });
 }
 
+/**
+ * Replaces saving throw proficiency list for an owned character.
+ */
 export async function updateSavingThrowProficiencies(
     _parent: unknown,
     { characterId, input }: MutationUpdateSavingThrowProficienciesArgs,
@@ -330,30 +406,45 @@ export async function updateSavingThrowProficiencies(
 // Field resolvers for Character type
 // ---------------------------------------------------------------------------
 
+/**
+ * Field resolver for Character.stats.
+ */
 export async function characterStats(parent: PrismaCharacter) {
     return await prisma.characterStats.findUnique({
         where: { characterId: parent.id },
     });
 }
 
+/**
+ * Field resolver for Character.attacks.
+ */
 export async function characterAttacks(parent: PrismaCharacter) {
     return await prisma.attack.findMany({
         where: { characterId: parent.id },
     });
 }
 
+/**
+ * Field resolver for Character.inventory.
+ */
 export async function characterInventory(parent: PrismaCharacter) {
     return await prisma.inventoryItem.findMany({
         where: { characterId: parent.id },
     });
 }
 
+/**
+ * Field resolver for Character.features.
+ */
 export async function characterFeatures(parent: PrismaCharacter) {
     return await prisma.characterFeature.findMany({
         where: { characterId: parent.id },
     });
 }
 
+/**
+ * Field resolver for Character.spellSlots.
+ */
 export async function characterSpellSlots(parent: PrismaCharacter) {
     return await prisma.spellSlot.findMany({
         where: { characterId: parent.id },
@@ -361,6 +452,9 @@ export async function characterSpellSlots(parent: PrismaCharacter) {
     });
 }
 
+/**
+ * Field resolver for Character.spellbook.
+ */
 export async function characterSpellbook(parent: PrismaCharacter) {
     return await prisma.characterSpell.findMany({
         where: { characterId: parent.id },
@@ -372,6 +466,9 @@ export async function characterSpellbook(parent: PrismaCharacter) {
 // Spellbook / spell slot mutations
 // ---------------------------------------------------------------------------
 
+/**
+ * Adds a spell to a character spellbook if missing, else returns existing row.
+ */
 export async function learnSpell(
     _parent: unknown,
     { characterId, spellId }: MutationLearnSpellArgs,
@@ -388,6 +485,9 @@ export async function learnSpell(
     });
 }
 
+/**
+ * Removes a spell from a character spellbook.
+ */
 export async function forgetSpell(
     _parent: unknown,
     { characterId, spellId }: MutationForgetSpellArgs,
@@ -405,6 +505,9 @@ export async function forgetSpell(
     return true;
 }
 
+/**
+ * Marks a spell as prepared in a character spellbook.
+ */
 export async function prepareSpell(
     _parent: unknown,
     { characterId, spellId }: MutationPrepareSpellArgs,
@@ -420,6 +523,9 @@ export async function prepareSpell(
     });
 }
 
+/**
+ * Marks a spell as unprepared in a character spellbook.
+ */
 export async function unprepareSpell(
     _parent: unknown,
     { characterId, spellId }: MutationUnprepareSpellArgs,
@@ -435,6 +541,9 @@ export async function unprepareSpell(
     });
 }
 
+/**
+ * Cycles spell-slot usage for a given spell level.
+ */
 export async function toggleSpellSlot(
     _parent: unknown,
     { characterId, level }: MutationToggleSpellSlotArgs,
@@ -461,6 +570,9 @@ export async function toggleSpellSlot(
 // Gear / features mutations
 // ---------------------------------------------------------------------------
 
+/**
+ * Adds an attack row to an owned character.
+ */
 export async function addAttack(
     _parent: unknown,
     { characterId, input }: MutationAddAttackArgs,
@@ -474,6 +586,9 @@ export async function addAttack(
     });
 }
 
+/**
+ * Removes an attack row from an owned character.
+ */
 export async function removeAttack(
     _parent: unknown,
     { characterId, attackId }: MutationRemoveAttackArgs,
@@ -491,6 +606,9 @@ export async function removeAttack(
     return true;
 }
 
+/**
+ * Adds an inventory item to an owned character.
+ */
 export async function addInventoryItem(
     _parent: unknown,
     { characterId, input }: MutationAddInventoryItemArgs,
@@ -499,17 +617,14 @@ export async function addInventoryItem(
     const userId = requireUser(ctx);
     await findOwnedCharacter(characterId, userId);
 
-    // Strip null values so Prisma gets undefined for optional fields
-    const data: Record<string, unknown> = { characterId };
-    for (const [key, value] of Object.entries(input)) {
-        if (value !== undefined && value !== null) {
-            data[key] = value;
-        }
-    }
+    const data = { characterId, ...stripNullishFields(input) };
 
     return await prisma.inventoryItem.create({ data: data as any });
 }
 
+/**
+ * Removes an inventory item from an owned character.
+ */
 export async function removeInventoryItem(
     _parent: unknown,
     { characterId, itemId }: MutationRemoveInventoryItemArgs,
@@ -527,6 +642,9 @@ export async function removeInventoryItem(
     return true;
 }
 
+/**
+ * Adds a feature row to an owned character.
+ */
 export async function addFeature(
     _parent: unknown,
     { characterId, input }: MutationAddFeatureArgs,
@@ -540,6 +658,9 @@ export async function addFeature(
     });
 }
 
+/**
+ * Removes a feature row from an owned character.
+ */
 export async function removeFeature(
     _parent: unknown,
     { characterId, featureId }: MutationRemoveFeatureArgs,
@@ -561,6 +682,9 @@ export async function removeFeature(
 // Rest / recovery mutations
 // ---------------------------------------------------------------------------
 
+/**
+ * Spends hit dice, clamping remaining dice at zero.
+ */
 export async function spendHitDie(
     _parent: unknown,
     { characterId, amount }: MutationSpendHitDieArgs,
@@ -578,6 +702,9 @@ export async function spendHitDie(
     });
 }
 
+/**
+ * Applies short-rest recovery (currently restores short-rest feature uses).
+ */
 export async function shortRest(
     _parent: unknown,
     { characterId }: MutationShortRestArgs,
@@ -599,6 +726,9 @@ export async function shortRest(
     return char;
 }
 
+/**
+ * Applies long-rest recovery to HP, death saves, hit dice, slots, and features.
+ */
 export async function longRest(
     _parent: unknown,
     { characterId }: MutationLongRestArgs,

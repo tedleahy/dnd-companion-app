@@ -137,6 +137,10 @@ type Traits {
     ideals: String!
     bonds: String!
     flaws: String!
+    armorProficiencies: [String!]
+    weaponProficiencies: [String!]
+    toolProficiencies: [String!]
+    languages: [String!]
 }
 
 type Currency {

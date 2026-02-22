@@ -1,6 +1,6 @@
 import type { GraphQLResolveInfo } from 'graphql';
 import type { SpellList as PrismaSpellList, Character as PrismaCharacter, CharacterStats as PrismaCharacterStats, CharacterSpell as PrismaCharacterSpell } from '@prisma/client';
-import type { Context } from '..';
+import type { Context } from '../index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -559,10 +559,14 @@ export type SpellSlot = {
 
 export type Traits = {
   __typename?: 'Traits';
+  armorProficiencies?: Maybe<Array<Scalars['String']['output']>>;
   bonds: Scalars['String']['output'];
   flaws: Scalars['String']['output'];
   ideals: Scalars['String']['output'];
+  languages?: Maybe<Array<Scalars['String']['output']>>;
   personality: Scalars['String']['output'];
+  toolProficiencies?: Maybe<Array<Scalars['String']['output']>>;
+  weaponProficiencies?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type TraitsInput = {
@@ -959,10 +963,14 @@ export type SpellSlotResolvers<ContextType = Context, ParentType extends Resolve
 };
 
 export type TraitsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Traits'] = ResolversParentTypes['Traits']> = {
+  armorProficiencies?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   bonds?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   flaws?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ideals?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  languages?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   personality?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toolProficiencies?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  weaponProficiencies?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

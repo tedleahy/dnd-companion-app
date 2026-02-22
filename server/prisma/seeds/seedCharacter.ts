@@ -1,3 +1,4 @@
+import { FeatureKind, ProficiencyType } from '@prisma/client';
 import prisma from '../prisma';
 
 type SeedSpell = {
@@ -5,8 +6,31 @@ type SeedSpell = {
     prepared: boolean;
 };
 
+type CustomFeatSeed = {
+    name: string;
+    description: string;
+};
+
 const OWNER_USER_ID = 'demo-user';
 const CHARACTER_NAME = 'Vaelindra';
+const CHARACTER_CLASS = 'Wizard';
+const CHARACTER_SUBCLASS = 'Evocation';
+const CHARACTER_RACE = 'Elf';
+const CHARACTER_SUBRACE = 'High Elf';
+const CHARACTER_BACKGROUND = 'Acolyte';
+
+const CUSTOM_FEATS: CustomFeatSeed[] = [
+    {
+        name: 'War Caster',
+        description: 'Advantage on Constitution saves to maintain concentration, and somatic components can be performed while hands are occupied.',
+    },
+    {
+        name: 'Alert',
+        description: 'Gain +5 to initiative, cannot be surprised while conscious, and hidden attackers gain no advantage on you.',
+    },
+];
+
+const EXTRA_LANGUAGE_NAMES = ['Draconic', 'Sylvan', 'Celestial'];
 
 const SPELLBOOK: SeedSpell[] = [
     { name: 'Fire Bolt', prepared: true },
@@ -23,8 +47,263 @@ const SPELLBOOK: SeedSpell[] = [
     { name: 'Teleportation Circle', prepared: false },
 ];
 
+type CharacterFeatureSeed = {
+    featureId?: string;
+    name: string;
+    source: string;
+    description: string;
+    usesMax?: number;
+    usesRemaining?: number;
+    recharge?: string;
+};
+
+type DerivedProficiencies = {
+    armor: string[];
+    weapons: string[];
+    tools: string[];
+};
+
+function uniqueSorted(values: string[]): string[] {
+    return Array.from(new Set(values)).sort((left, right) => left.localeCompare(right));
+}
+
+function valuesOrNone(values: string[]): string[] {
+    const uniqueValues = uniqueSorted(values.filter((value) => value.trim().length > 0));
+    if (uniqueValues.length === 0) return ['None'];
+    return uniqueValues;
+}
+
+function deriveProficiencies(proficiencies: Array<{ name: string; type: ProficiencyType }>): DerivedProficiencies {
+    const armor: string[] = [];
+    const weapons: string[] = [];
+    const tools: string[] = [];
+
+    for (const proficiency of proficiencies) {
+        if (proficiency.type === ProficiencyType.ARMOR) armor.push(proficiency.name);
+        if (proficiency.type === ProficiencyType.WEAPON) weapons.push(proficiency.name);
+        if (proficiency.type === ProficiencyType.TOOL) tools.push(proficiency.name);
+    }
+
+    return {
+        armor: valuesOrNone(armor),
+        weapons: valuesOrNone(weapons),
+        tools: valuesOrNone(tools),
+    };
+}
+
+function toCharacterFeatureSeed(
+    feature: {
+        id: string;
+        name: string;
+        description: string[];
+        sourceLabel: string | null;
+        kind: FeatureKind;
+    },
+    raceLabel: string,
+): CharacterFeatureSeed {
+    const description = feature.description.join(' ') || 'No description available.';
+    const defaultSource = feature.kind === FeatureKind.TRAIT_FEATURE ? raceLabel : feature.sourceLabel ?? 'Feature';
+
+    const baseFeature: CharacterFeatureSeed = {
+        featureId: feature.id,
+        name: feature.name,
+        source: defaultSource,
+        description,
+    };
+
+    if (feature.name.toLowerCase() === 'arcane recovery') {
+        return {
+            ...baseFeature,
+            usesMax: 1,
+            usesRemaining: 1,
+            recharge: 'long',
+        };
+    }
+
+    return baseFeature;
+}
+
+async function findOrCreateCustomFeat(ownerUserId: string, feat: CustomFeatSeed) {
+    const existingFeat = await prisma.feat.findFirst({
+        where: {
+            ownerUserId,
+            srdIndex: null,
+            name: feat.name,
+        },
+    });
+    if (existingFeat) return existingFeat;
+
+    return await prisma.feat.create({
+        data: {
+            ownerUserId,
+            name: feat.name,
+            description: [feat.description],
+            sourceBook: 'Custom',
+        },
+    });
+}
+
+async function findOrCreateCustomFeatFeature(ownerUserId: string, featId: string, feat: CustomFeatSeed) {
+    const existingFeature = await prisma.feature.findFirst({
+        where: {
+            ownerUserId,
+            srdIndex: null,
+            featId,
+            kind: FeatureKind.FEAT_FEATURE,
+        },
+    });
+    if (existingFeature) return existingFeature;
+
+    return await prisma.feature.create({
+        data: {
+            ownerUserId,
+            name: feat.name,
+            description: [feat.description],
+            kind: FeatureKind.FEAT_FEATURE,
+            sourceLabel: 'Feat',
+            sourceBook: 'Custom',
+            featId,
+        },
+    });
+}
+
 export default async function seedCharacter() {
     try {
+        const [
+            classRef,
+            subclassRef,
+            raceRef,
+            subraceRef,
+            backgroundRef,
+        ] = await Promise.all([
+            prisma.class.findFirst({
+                where: { srdIndex: 'wizard' },
+                include: { proficiencies: true },
+            }),
+            prisma.subclass.findFirst({
+                where: { srdIndex: 'evocation' },
+            }),
+            prisma.race.findFirst({
+                where: { srdIndex: 'elf' },
+                include: {
+                    languages: true,
+                    traits: {
+                        include: {
+                            proficiencies: true,
+                        },
+                    },
+                },
+            }),
+            prisma.subrace.findFirst({
+                where: { srdIndex: 'high-elf' },
+                include: {
+                    traits: {
+                        include: {
+                            proficiencies: true,
+                        },
+                    },
+                },
+            }),
+            prisma.background.findFirst({
+                where: { srdIndex: 'acolyte' },
+                include: { proficiencies: true },
+            }),
+        ]);
+
+        if (!classRef) throw new Error('Missing Class reference: wizard');
+        if (!raceRef) throw new Error('Missing Race reference: elf');
+        if (!backgroundRef) throw new Error('Missing Background reference: acolyte');
+
+        const classFeatureFilters: Array<{ kind: FeatureKind; classId?: string; subclassId?: string }> = [
+            { kind: FeatureKind.CLASS_FEATURE, classId: classRef.id },
+        ];
+        if (subclassRef) {
+            classFeatureFilters.push({ kind: FeatureKind.SUBCLASS_FEATURE, subclassId: subclassRef.id });
+        }
+
+        const classFeatureDefinitions = await prisma.feature.findMany({
+            where: {
+                OR: classFeatureFilters.map((filter) => ({
+                    kind: filter.kind,
+                    classId: filter.classId,
+                    subclassId: filter.subclassId,
+                    level: { lte: 12 },
+                })),
+            },
+            orderBy: [{ level: 'asc' }, { name: 'asc' }],
+        });
+
+        const traitIds = uniqueSorted([
+            ...raceRef.traits.map((trait) => trait.id),
+            ...(subraceRef?.traits.map((trait) => trait.id) ?? []),
+        ]);
+
+        const traitFeatureDefinitions = traitIds.length === 0
+            ? []
+            : await prisma.feature.findMany({
+                where: {
+                    kind: FeatureKind.TRAIT_FEATURE,
+                    traitId: { in: traitIds },
+                },
+                orderBy: [{ name: 'asc' }],
+            });
+
+        const backgroundFeatureDefinitions = await prisma.feature.findMany({
+            where: {
+                kind: FeatureKind.BACKGROUND_FEATURE,
+                backgroundId: backgroundRef.id,
+            },
+            orderBy: [{ name: 'asc' }],
+        });
+
+        const customFeats = await Promise.all(
+            CUSTOM_FEATS.map(async (customFeat) => {
+                const feat = await findOrCreateCustomFeat(OWNER_USER_ID, customFeat);
+                const feature = await findOrCreateCustomFeatFeature(OWNER_USER_ID, feat.id, customFeat);
+                return { feat, feature };
+            }),
+        );
+
+        const characterFeatureRows = [
+            ...classFeatureDefinitions,
+            ...traitFeatureDefinitions,
+            ...backgroundFeatureDefinitions,
+            ...customFeats.map(({ feature }) => feature),
+        ].map((feature) => toCharacterFeatureSeed(feature, CHARACTER_SUBRACE));
+
+        const classProficiencies = classRef.proficiencies;
+        const raceTraitProficiencies = raceRef.traits.flatMap((trait) => trait.proficiencies);
+        const subraceTraitProficiencies = subraceRef?.traits.flatMap((trait) => trait.proficiencies) ?? [];
+        const backgroundProficiencies = backgroundRef.proficiencies;
+
+        const allProficiencies = [
+            ...classProficiencies,
+            ...raceTraitProficiencies,
+            ...subraceTraitProficiencies,
+            ...backgroundProficiencies,
+        ];
+
+        const proficiencyById = new Map(allProficiencies.map((proficiency) => [proficiency.id, proficiency]));
+        const uniqueProficiencyRecords = Array.from(proficiencyById.values());
+        const derivedProficiencies = deriveProficiencies(uniqueProficiencyRecords);
+
+        const languageRecords = [
+            ...raceRef.languages,
+            ...await prisma.language.findMany({
+                where: {
+                    name: {
+                        in: EXTRA_LANGUAGE_NAMES,
+                    },
+                },
+            }),
+        ];
+        const languageById = new Map(languageRecords.map((language) => [language.id, language]));
+        const uniqueLanguages = Array.from(languageById.values());
+        const languageNames = uniqueSorted(uniqueLanguages.map((language) => language.name));
+        if (backgroundRef.languageChoiceCount && backgroundRef.languageChoiceCount > 0) {
+            languageNames.push(`Choice (${backgroundRef.languageChoiceCount})`);
+        }
+
         await prisma.character.deleteMany({
             where: {
                 ownerUserId: OWNER_USER_ID,
@@ -36,12 +315,17 @@ export default async function seedCharacter() {
             data: {
                 ownerUserId: OWNER_USER_ID,
                 name: CHARACTER_NAME,
-                race: 'High Elf',
-                class: 'Wizard',
+                race: CHARACTER_SUBRACE,
+                class: CHARACTER_CLASS,
                 subclass: 'School of Evocation',
                 level: 12,
                 alignment: 'Chaotic Good',
-                background: 'Sage',
+                background: CHARACTER_BACKGROUND,
+                classId: classRef.id,
+                subclassId: subclassRef?.id ?? null,
+                raceId: raceRef.id,
+                subraceId: subraceRef?.id ?? null,
+                backgroundId: backgroundRef.id,
                 proficiencyBonus: 4,
                 inspiration: false,
                 ac: 17,
@@ -102,6 +386,10 @@ export default async function seedCharacter() {
                             ideals: 'Knowledge should be preserved and shared responsibly.',
                             bonds: 'My spellbook contains my life\'s work.',
                             flaws: 'I overestimate my ability to control dangerous magic.',
+                            armorProficiencies: derivedProficiencies.armor,
+                            weaponProficiencies: derivedProficiencies.weapons,
+                            toolProficiencies: derivedProficiencies.tools,
+                            languages: languageNames,
                         },
                         currency: {
                             cp: 0,
@@ -153,26 +441,22 @@ export default async function seedCharacter() {
                     ],
                 },
                 features: {
-                    create: [
-                        {
-                            name: 'Arcane Recovery',
-                            source: 'Wizard 1',
-                            description: 'Recover expended spell slots on a short rest.',
-                            usesMax: 1,
-                            usesRemaining: 1,
-                            recharge: 'long',
-                        },
-                        {
-                            name: 'Sculpt Spells',
-                            source: 'Wizard 2',
-                            description: 'Protect allies from your evocation spells.',
-                        },
-                        {
-                            name: 'Darkvision',
-                            source: 'High Elf',
-                            description: 'Can see in dim light within 60 feet as if it were bright light.',
-                        },
-                    ],
+                    create: characterFeatureRows,
+                },
+                feats: {
+                    create: customFeats.map(({ feat }) => ({
+                        featId: feat.id,
+                    })),
+                },
+                languages: {
+                    create: uniqueLanguages.map((language) => ({
+                        languageId: language.id,
+                    })),
+                },
+                proficiencies: {
+                    create: uniqueProficiencyRecords.map((proficiency) => ({
+                        proficiencyId: proficiency.id,
+                    })),
                 },
                 spellSlots: {
                     create: [

@@ -118,7 +118,16 @@ const fakeStats: any = {
     hitDice: { total: 12, remaining: 12, die: 'd6' },
     savingThrowProficiencies: ['constitution', 'intelligence'],
     skillProficiencies: { arcana: 'expert', history: 'proficient', stealth: 'none' },
-    traits: { personality: 'Curious', ideals: 'Knowledge', bonds: 'Spellbook', flaws: 'Arrogant' },
+    traits: {
+        personality: 'Curious',
+        ideals: 'Knowledge',
+        bonds: 'Spellbook',
+        flaws: 'Arrogant',
+        armorProficiencies: [],
+        weaponProficiencies: ['Daggers'],
+        toolProficiencies: [],
+        languages: ['Common', 'Elvish'],
+    },
     currency: { cp: 0, sp: 14, ep: 0, gp: 847, pp: 3 },
 };
 
@@ -450,19 +459,29 @@ describe('characterResolvers — updateSkillProficiencies', () => {
 describe('characterResolvers — updateTraits', () => {
     beforeEach(clearAllMocks);
 
-    test('updates traits on the stats row', async () => {
+    test('merges editable traits while preserving metadata fields', async () => {
         characterFindFirstMock.mockResolvedValueOnce(fakeCharacter);
         statsFindUniqueMock.mockResolvedValueOnce(fakeStats);
         const newTraits = { personality: 'Bold', ideals: 'Freedom', bonds: 'Family', flaws: 'Reckless' };
-        statsUpdateMock.mockResolvedValueOnce({ ...fakeStats, traits: newTraits });
+        statsUpdateMock.mockResolvedValueOnce({
+            ...fakeStats,
+            traits: {
+                ...fakeStats.traits,
+                ...newTraits,
+            },
+        });
 
         const result = await resolvers.updateTraits(
             {}, { characterId: 'char-1', input: newTraits }, authedCtx,
         );
 
         const callArgs = statsUpdateMock.mock.calls[0]![0] as Record<string, any>;
-        expect(callArgs.data.traits).toEqual(newTraits);
-        expect(result.traits).toEqual(newTraits);
+        expect(callArgs.data.traits).toEqual({
+            ...fakeStats.traits,
+            ...newTraits,
+        });
+        expect(result.traits.armorProficiencies).toEqual([]);
+        expect(result.traits.languages).toEqual(['Common', 'Elvish']);
     });
 });
 
