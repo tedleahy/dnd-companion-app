@@ -45,7 +45,7 @@ function iconStyle(category: FeatureSectionCardProps['category']): IconStyle {
 /**
  * Builds the uses summary label for tracked-use features.
  */
-function useLabel(feature: FeatureRow): string {
+function usesLabel(feature: FeatureRow): string {
     if (!feature.usesMax || feature.usesMax <= 0) return '';
     return `${availableUses(feature)} / ${feature.usesMax}`;
 }
@@ -103,7 +103,7 @@ export default function FeatureSectionCard({
                                                     borderWidth={1.3}
                                                     disabled
                                                 />
-                                                <Text style={styles.useLabel}>{useLabel(feature)}</Text>
+                                                <Text style={styles.useLabel}>{usesLabel(feature)}</Text>
                                                 {recharge && (
                                                     <View style={styles.rechargeBadge}>
                                                         <Text style={styles.rechargeBadgeText}>{recharge}</Text>
