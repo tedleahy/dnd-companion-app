@@ -6,6 +6,11 @@ import type { MockLink } from '@apollo/client/testing';
 import { gql } from '@apollo/client';
 import SpellSearch from '../spells';
 
+jest.mock('@/components/navigation/RailScreenShell', () => ({
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 const mockReplace = jest.fn();
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({

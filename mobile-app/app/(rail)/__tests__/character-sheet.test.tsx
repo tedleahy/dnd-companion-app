@@ -16,6 +16,11 @@ import {
 } from '@/graphql/characterSheet.operations';
 import CharacterSheetScreen from '../character-sheet';
 
+jest.mock('@/components/navigation/RailScreenShell', () => ({
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 const MOCK_CHARACTER = {
     __typename: 'Character',
     id: 'char-1',
