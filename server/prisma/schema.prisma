@@ -52,7 +52,6 @@ model Spell {
     subclassIndexes   String[]    @default([])
     sourceBook        String?
     raw               Json?
-    spellLists        SpellListSpell[]
     characterSpells   CharacterSpell[]
 
     @@index([name])
@@ -296,26 +295,6 @@ model Feature {
     @@index([backgroundId])
     @@index([traitId])
     @@index([featId])
-}
-
-model SpellList {
-    id          String           @id @default(cuid())
-    name        String
-    ownerUserId String
-    createdAt   DateTime         @default(now())
-    spells      SpellListSpell[]
-
-    @@index([ownerUserId])
-}
-
-model SpellListSpell {
-    spellList   SpellList @relation(fields: [spellListId], references: [id], onDelete: Cascade)
-    spellListId String
-    spell       Spell     @relation(fields: [spellId], references: [id], onDelete: Cascade)
-    spellId     String
-    addedAt     DateTime  @default(now())
-
-    @@id([spellListId, spellId])
 }
 
 // ---------------------------------------------------------------------------

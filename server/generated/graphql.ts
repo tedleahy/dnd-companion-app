@@ -1,5 +1,5 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { SpellList as PrismaSpellList, Character as PrismaCharacter, CharacterStats as PrismaCharacterStats, CharacterSpell as PrismaCharacterSpell } from '@prisma/client';
+import type { Character as PrismaCharacter, CharacterStats as PrismaCharacterStats, CharacterSpell as PrismaCharacterSpell } from '@prisma/client';
 import type { Context } from '../index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -223,11 +223,8 @@ export type Mutation = {
   addAttack: Attack;
   addFeature: CharacterFeature;
   addInventoryItem: InventoryItem;
-  addSpellToList: SpellList;
   createCharacter: Character;
-  createSpellList: SpellList;
   deleteCharacter: Scalars['Boolean']['output'];
-  deleteSpellList: Scalars['Boolean']['output'];
   forgetSpell: Scalars['Boolean']['output'];
   learnSpell: CharacterSpell;
   longRest: Character;
@@ -235,8 +232,6 @@ export type Mutation = {
   removeAttack: Scalars['Boolean']['output'];
   removeFeature: Scalars['Boolean']['output'];
   removeInventoryItem: Scalars['Boolean']['output'];
-  removeSpellFromList: SpellList;
-  renameSpellList: Scalars['Boolean']['output'];
   shortRest: Character;
   spendHitDie: CharacterStats;
   toggleInspiration: Character;
@@ -272,28 +267,12 @@ export type MutationAddInventoryItemArgs = {
 };
 
 
-export type MutationAddSpellToListArgs = {
-  spellId: Scalars['ID']['input'];
-  spellListId: Scalars['ID']['input'];
-};
-
-
 export type MutationCreateCharacterArgs = {
   input: CreateCharacterInput;
 };
 
 
-export type MutationCreateSpellListArgs = {
-  name: Scalars['String']['input'];
-};
-
-
 export type MutationDeleteCharacterArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteSpellListArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -336,18 +315,6 @@ export type MutationRemoveFeatureArgs = {
 export type MutationRemoveInventoryItemArgs = {
   characterId: Scalars['ID']['input'];
   itemId: Scalars['ID']['input'];
-};
-
-
-export type MutationRemoveSpellFromListArgs = {
-  spellId: Scalars['ID']['input'];
-  spellListId: Scalars['ID']['input'];
-};
-
-
-export type MutationRenameSpellListArgs = {
-  id: Scalars['ID']['input'];
-  name: Scalars['String']['input'];
 };
 
 
@@ -442,7 +409,6 @@ export type Query = {
   __typename?: 'Query';
   character?: Maybe<Character>;
   currentUserCharacters: Array<Character>;
-  currentUserSpellLists: Array<SpellList>;
   spell?: Maybe<Spell>;
   spells: Array<Spell>;
 };
@@ -540,13 +506,6 @@ export type SpellFilter = {
   name?: InputMaybe<Scalars['String']['input']>;
   rangeCategories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ritual?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type SpellList = {
-  __typename?: 'SpellList';
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  spells: Array<Spell>;
 };
 
 export type SpellSlot = {
@@ -698,7 +657,6 @@ export type ResolversTypes = {
   SkillProficienciesInput: SkillProficienciesInput;
   Spell: ResolverTypeWrapper<Spell>;
   SpellFilter: SpellFilter;
-  SpellList: ResolverTypeWrapper<PrismaSpellList>;
   SpellSlot: ResolverTypeWrapper<SpellSlot>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Traits: ResolverTypeWrapper<Traits>;
@@ -739,7 +697,6 @@ export type ResolversParentTypes = {
   SkillProficienciesInput: SkillProficienciesInput;
   Spell: Spell;
   SpellFilter: SpellFilter;
-  SpellList: PrismaSpellList;
   SpellSlot: SpellSlot;
   String: Scalars['String']['output'];
   Traits: Traits;
@@ -868,11 +825,8 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   addAttack?: Resolver<ResolversTypes['Attack'], ParentType, ContextType, RequireFields<MutationAddAttackArgs, 'characterId' | 'input'>>;
   addFeature?: Resolver<ResolversTypes['CharacterFeature'], ParentType, ContextType, RequireFields<MutationAddFeatureArgs, 'characterId' | 'input'>>;
   addInventoryItem?: Resolver<ResolversTypes['InventoryItem'], ParentType, ContextType, RequireFields<MutationAddInventoryItemArgs, 'characterId' | 'input'>>;
-  addSpellToList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationAddSpellToListArgs, 'spellId' | 'spellListId'>>;
   createCharacter?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationCreateCharacterArgs, 'input'>>;
-  createSpellList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationCreateSpellListArgs, 'name'>>;
   deleteCharacter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCharacterArgs, 'id'>>;
-  deleteSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSpellListArgs, 'id'>>;
   forgetSpell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgetSpellArgs, 'characterId' | 'spellId'>>;
   learnSpell?: Resolver<ResolversTypes['CharacterSpell'], ParentType, ContextType, RequireFields<MutationLearnSpellArgs, 'characterId' | 'spellId'>>;
   longRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationLongRestArgs, 'characterId'>>;
@@ -880,8 +834,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   removeAttack?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveAttackArgs, 'attackId' | 'characterId'>>;
   removeFeature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveFeatureArgs, 'characterId' | 'featureId'>>;
   removeInventoryItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveInventoryItemArgs, 'characterId' | 'itemId'>>;
-  removeSpellFromList?: Resolver<ResolversTypes['SpellList'], ParentType, ContextType, RequireFields<MutationRemoveSpellFromListArgs, 'spellId' | 'spellListId'>>;
-  renameSpellList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRenameSpellListArgs, 'id' | 'name'>>;
   shortRest?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationShortRestArgs, 'characterId'>>;
   spendHitDie?: Resolver<ResolversTypes['CharacterStats'], ParentType, ContextType, RequireFields<MutationSpendHitDieArgs, 'amount' | 'characterId'>>;
   toggleInspiration?: Resolver<ResolversTypes['Character'], ParentType, ContextType, RequireFields<MutationToggleInspirationArgs, 'characterId'>>;
@@ -901,7 +853,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   character?: Resolver<Maybe<ResolversTypes['Character']>, ParentType, ContextType, RequireFields<QueryCharacterArgs, 'id'>>;
   currentUserCharacters?: Resolver<Array<ResolversTypes['Character']>, ParentType, ContextType>;
-  currentUserSpellLists?: Resolver<Array<ResolversTypes['SpellList']>, ParentType, ContextType>;
   spell?: Resolver<Maybe<ResolversTypes['Spell']>, ParentType, ContextType, RequireFields<QuerySpellArgs, 'id'>>;
   spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType, Partial<QuerySpellsArgs>>;
 };
@@ -947,13 +898,6 @@ export type SpellResolvers<ContextType = Context, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SpellListResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SpellList'] = ResolversParentTypes['SpellList']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  spells?: Resolver<Array<ResolversTypes['Spell']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type SpellSlotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SpellSlot'] = ResolversParentTypes['SpellSlot']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -990,7 +934,6 @@ export type Resolvers<ContextType = Context> = {
   Query?: QueryResolvers<ContextType>;
   SkillProficiencies?: SkillProficienciesResolvers<ContextType>;
   Spell?: SpellResolvers<ContextType>;
-  SpellList?: SpellListResolvers<ContextType>;
   SpellSlot?: SpellSlotResolvers<ContextType>;
   Traits?: TraitsResolvers<ContextType>;
 };

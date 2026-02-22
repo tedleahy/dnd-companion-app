@@ -9,7 +9,6 @@ import { getUserIdFromAuthHeader } from './lib/auth';
 import type { Resolvers } from './generated/graphql';
 import spellsResolver from './resolvers/spellsResolver';
 import spellResolver from './resolvers/spellResolver';
-import * as spellListResolvers from './resolvers/spellListResolvers';
 import * as characterResolvers from './resolvers/characterResolvers';
 
 const typeDefs = loadFilesSync('schema.graphql');
@@ -32,18 +31,11 @@ const resolvers: Resolvers = {
     Query: {
         spells: spellsResolver,
         spell: spellResolver,
-        currentUserSpellLists: spellListResolvers.currentUserLists,
         character: characterResolvers.character,
         currentUserCharacters: characterResolvers.currentUserCharacters,
     },
 
     Mutation: {
-        createSpellList: spellListResolvers.create,
-        renameSpellList: spellListResolvers.rename,
-        deleteSpellList: spellListResolvers.destroy,
-        addSpellToList: spellListResolvers.addSpellToList,
-        removeSpellFromList: spellListResolvers.removeSpellFromList,
-
         createCharacter: characterResolvers.createCharacter,
         updateCharacter: characterResolvers.updateCharacter,
         deleteCharacter: characterResolvers.deleteCharacter,
@@ -74,10 +66,6 @@ const resolvers: Resolvers = {
         spendHitDie: characterResolvers.spendHitDie,
         shortRest: characterResolvers.shortRest,
         longRest: characterResolvers.longRest,
-    },
-
-    SpellList: {
-        spells: spellListResolvers.spellListSpells,
     },
 
     Character: {

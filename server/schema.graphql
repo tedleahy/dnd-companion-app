@@ -30,12 +30,6 @@ input SpellFilter {
     castingTimeCategories: [String]
 }
 
-type SpellList {
-    id: ID!
-    name: String!
-    spells: [Spell!]!
-}
-
 # ---------------------------------------------------------------------------
 # Character Sheet
 # ---------------------------------------------------------------------------
@@ -336,19 +330,11 @@ input FeatureInput {
 type Query {
     spells(filter: SpellFilter): [Spell!]!
     spell(id: ID!): Spell
-    currentUserSpellLists: [SpellList!]!
     character(id: ID!): Character
     currentUserCharacters: [Character!]!
 }
 
 type Mutation {
-    # Spell lists
-    createSpellList(name: String!): SpellList!
-    renameSpellList(id: ID!, name: String!): Boolean!
-    deleteSpellList(id: ID!): Boolean!
-    addSpellToList(spellListId: ID!, spellId: ID!): SpellList!
-    removeSpellFromList(spellListId: ID!, spellId: ID!): SpellList!
-
     # Character lifecycle
     createCharacter(input: CreateCharacterInput!): Character!
     updateCharacter(id: ID!, input: UpdateCharacterInput!): Character!
