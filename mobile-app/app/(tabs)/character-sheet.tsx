@@ -2,16 +2,19 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import CharacterSheetHeader from '@/components/character-sheet/CharacterSheetHeader';
+import type { CharacterSheetTab } from '@/components/character-sheet/CharacterSheetHeader';
 import VitalsCard from '@/components/character-sheet/VitalsCard';
 import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import AbilityScoresAndSkillsCard from '@/components/character-sheet/AbilityScoresAndSkillsCard';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
-import { useEffect } from 'react';
+import SkillsTab from '@/components/character-sheet/SkillsTab';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import { isAbilityKey } from '@/lib/characterSheetUtils';
 
 export default function CharacterSheetScreen() {
+    const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const router = useRouter();
     const {
         character,
@@ -66,36 +69,50 @@ export default function CharacterSheetScreen() {
                 subclass={character.subclass ?? undefined}
                 race={character.race}
                 alignment={character.alignment}
+                activeTab={activeTab}
+                onTabPress={setActiveTab}
             />
             <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                <VitalsCard
-                    hp={stats.hp}
-                    ac={character.ac}
-                    speed={character.speed}
-                    conditions={character.conditions}
-                />
-                <QuickStatsCard
-                    proficiencyBonus={character.proficiencyBonus}
-                    initiative={character.initiative}
-                    inspiration={character.inspiration}
-                    spellSaveDC={character.spellSaveDC ?? null}
-                    onToggleInspiration={handleToggleInspiration}
-                />
-                <AbilityScoresAndSkillsCard
-                    abilityScores={stats.abilityScores}
-                    proficiencyBonus={character.proficiencyBonus}
-                    savingThrowProficiencies={savingThrowProficiencies}
-                    skillProficiencies={stats.skillProficiencies}
-                />
-                <DeathSavesCard
-                    successes={stats.deathSaves.successes}
-                    failures={stats.deathSaves.failures}
-                    onUpdate={handleUpdateDeathSaves}
-                />
+                {activeTab === 'Core' && (
+                    <>
+                        <VitalsCard
+                            hp={stats.hp}
+                            ac={character.ac}
+                            speed={character.speed}
+                            conditions={character.conditions}
+                        />
+                        <QuickStatsCard
+                            proficiencyBonus={character.proficiencyBonus}
+                            initiative={character.initiative}
+                            inspiration={character.inspiration}
+                            spellSaveDC={character.spellSaveDC ?? null}
+                            onToggleInspiration={handleToggleInspiration}
+                        />
+                        <AbilityScoresAndSkillsCard
+                            abilityScores={stats.abilityScores}
+                            proficiencyBonus={character.proficiencyBonus}
+                            savingThrowProficiencies={savingThrowProficiencies}
+                            skillProficiencies={stats.skillProficiencies}
+                        />
+                        <DeathSavesCard
+                            successes={stats.deathSaves.successes}
+                            failures={stats.deathSaves.failures}
+                            onUpdate={handleUpdateDeathSaves}
+                        />
+                    </>
+                )}
+
+                {activeTab === 'Skills' && (
+                    <SkillsTab
+                        abilityScores={stats.abilityScores}
+                        proficiencyBonus={character.proficiencyBonus}
+                        skillProficiencies={stats.skillProficiencies}
+                    />
+                )}
             </ScrollView>
         </View>
     );

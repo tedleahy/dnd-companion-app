@@ -296,8 +296,62 @@ describe('CharacterSheetScreen', () => {
         await waitFor(() => {
             expect(screen.getByText('Core')).toBeTruthy();
         });
+        expect(screen.getByText('Skills')).toBeTruthy();
         expect(screen.getByText('Spells')).toBeTruthy();
         expect(screen.getByText('Gear')).toBeTruthy();
         expect(screen.getByText('Features')).toBeTruthy();
+    });
+
+    it('switches to the Skills tab', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+        });
+
+        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Passive Senses')).toBeTruthy();
+        });
+        expect(screen.queryByText('Abilities & Skills')).toBeNull();
+    });
+
+    it('cycles skill proficiency and recalculates passive score', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('15');
+        });
+
+        fireEvent.press(screen.getByLabelText('Cycle proficiency for Perception'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('19');
+        });
+    });
+
+    it('filters skills by search text', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Skills tab'));
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Search skills')).toBeTruthy();
+        });
+        fireEvent.changeText(screen.getByLabelText('Search skills'), 'Arcana');
+
+        await waitFor(() => {
+            expect(screen.getByText('Arcana')).toBeTruthy();
+        });
+        expect(screen.queryByText('Athletics')).toBeNull();
     });
 });

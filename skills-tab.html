@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Skills Tab</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #f5e6c8;
+    --card-bg: #f0e0bc;
+    --ink: #1a0f00;
+    --ink-light: #3d2b1f;
+    --crimson: #8b1a1a;
+    --gold: #c9922a;
+    --gold-light: #e8b84b;
+    --bg: #0d0906;
+    --divider: rgba(139,90,43,0.3);
+    --shadow: 0 4px 20px rgba(0,0,0,0.6);
+    --green: #1a4a1a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); font-family:'Crimson Text',Georgia,serif; color:var(--ink); min-height:100vh; }
+  .phone-wrap { max-width:420px; margin:0 auto; min-height:100vh; position:relative; }
+
+  /* HEADER */
+  .header {
+    background:var(--bg); padding:18px 20px 0;
+    position:sticky; top:0; z-index:100;
+    border-bottom:1px solid rgba(201,146,42,0.2);
+  }
+  .codex-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--gold); opacity:0.8; }
+  .header-top { display:flex; align-items:center; justify-content:space-between; }
+  .char-name { font-family:'Cinzel',serif; font-size:28px; font-weight:700; color:var(--parchment); margin-top:6px; }
+  .char-sub { font-family:'Crimson Text',serif; font-size:14px; color:var(--gold); font-style:italic; margin-top:2px; }
+  .header-icon { color:var(--gold); opacity:0.7; font-size:15px; }
+  .tabs { display:flex; padding:0 20px; margin-top:12px; border-bottom:1px solid rgba(201,146,42,0.15); }
+  .tab { font-family:'Cinzel',serif; font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(201,146,42,0.5); padding:8px 12px 10px; cursor:pointer; position:relative; }
+  .tab.active { color:var(--gold); }
+  .tab.active::after { content:''; position:absolute; bottom:-1px; left:12px; right:12px; height:2px; background:var(--gold); border-radius:2px 2px 0 0; }
+
+  /* SEARCH BAR */
+  .search-wrap { padding:12px 16px 0; position:sticky; top:130px; z-index:50; background:var(--bg); }
+  .search-inner { position:relative; }
+  .search-input {
+    width:100%; background:rgba(240,224,188,0.07); border:1px solid rgba(201,146,42,0.2);
+    border-radius:10px; padding:10px 14px 10px 38px;
+    font-family:'Crimson Text',serif; font-size:15px; color:var(--parchment);
+    outline:none;
+  }
+  .search-input::placeholder { color:rgba(201,146,42,0.35); }
+  .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:rgba(201,146,42,0.4); font-size:14px; }
+
+  /* PASSIVE STATS */
+  .content { padding:12px 16px 100px; display:flex; flex-direction:column; gap:12px; }
+
+  .card {
+    background:var(--card-bg); border-radius:14px; overflow:hidden;
+    box-shadow:var(--shadow); position:relative;
+    animation:fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .card:nth-child(1){animation-delay:.05s} .card:nth-child(2){animation-delay:.1s} .card:nth-child(3){animation-delay:.15s}
+
+  .section-label { font-family:'Cinzel',serif; font-size:8.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--crimson); opacity:0.8; padding:14px 18px 0; }
+
+  /* Passive trio */
+  .passive-row { display:flex; padding:12px 18px 16px; gap:8px; }
+  .passive-block {
+    flex:1; text-align:center; background:rgba(0,0,0,0.05);
+    border-radius:10px; padding:10px 8px;
+  }
+  .passive-val { font-family:'Cinzel',serif; font-size:24px; font-weight:700; color:var(--ink); line-height:1; }
+  .passive-label { font-family:'Cinzel',serif; font-size:7px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-light); opacity:0.5; margin-top:4px; }
+
+  /* Ability filter pills */
+  .filter-row { display:flex; gap:6px; padding:14px 18px 10px; overflow-x:auto; scrollbar-width:none; }
+  .filter-row::-webkit-scrollbar{display:none}
+  .filter-pill {
+    font-family:'Cinzel',serif; font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:5px 12px; border-radius:20px; border:1px solid var(--divider);
+    color:var(--ink-light); opacity:0.6; cursor:pointer; flex-shrink:0; transition:all 0.15s;
+    background:transparent;
+  }
+  .filter-pill.active { border-color:var(--gold); color:var(--gold); opacity:1; background:rgba(201,146,42,0.1); }
+
+  .card-divider { height:1px; background:var(--divider); margin:0 18px; }
+
+  /* Skill rows */
+  .skill-group-header {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 18px 4px;
+  }
+  .skill-group-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-light); opacity:0.45; }
+  .skill-group-line { flex:1; height:1px; background:var(--divider); }
+
+  .skill-list { padding:0 18px; }
+  .skill-row {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 0; border-bottom:1px solid rgba(139,90,43,0.12);
+    cursor:pointer; transition:background 0.1s;
+  }
+  .skill-row:last-child { border-bottom:none; }
+
+  .skill-dot { width:10px; height:10px; border-radius:50%; border:1.5px solid rgba(139,90,43,0.35); flex-shrink:0; }
+  .skill-dot.proficient { background:var(--crimson); border-color:var(--crimson); }
+  .skill-dot.expert {
+    background:var(--gold); border-color:var(--gold);
+    box-shadow:0 0 0 2px var(--card-bg), 0 0 0 3.5px var(--gold);
+  }
+
+  .skill-name { flex:1; font-size:14px; color:var(--ink-light); }
+  .skill-name strong { color:var(--ink); font-weight:600; }
+
+  .skill-attr {
+    font-family:'Cinzel',serif; font-size:8px; letter-spacing:1px;
+    color:var(--ink-light); opacity:0.4; width:24px; text-align:center;
+    font-style:normal;
+  }
+
+  .skill-mod {
+    font-family:'Cinzel',serif; font-size:13px; font-weight:700;
+    min-width:34px; text-align:right; color:var(--ink);
+  }
+  .skill-mod.pos { color:var(--green); }
+  .skill-mod.high { color:var(--gold); }
+
+  /* Legend */
+  .legend { display:flex; gap:16px; padding:12px 18px 14px; }
+  .legend-item { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-light); opacity:0.55; font-style:italic; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; border:1.5px solid rgba(139,90,43,0.35); flex-shrink:0; }
+  .legend-dot.p { background:var(--crimson); border-color:var(--crimson); }
+  .legend-dot.e { background:var(--gold); border-color:var(--gold); box-shadow:0 0 0 1.5px var(--card-bg),0 0 0 3px var(--gold); }
+
+  /* Bottom nav */
+  .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:420px; background:var(--bg); border-top:1px solid rgba(201,146,42,0.15); display:flex; padding:10px 0 24px; }
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; opacity:0.4; }
+  .nav-item.active { opacity:1; }
+  .nav-icon { font-size:18px; color:var(--gold); }
+  .nav-label { font-family:'Cinzel',serif; font-size:7.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+  <div class="header">
+    <div class="header-top">
+      <span class="codex-label">Character Codex</span>
+      <span class="header-icon">⋯</span>
+    </div>
+    <div class="char-name">Vaelindra Stormveil</div>
+    <div class="char-sub">Level 12 Wizard · High Elf</div>
+    <div class="tabs">
+      <div class="tab">Core</div>
+      <div class="tab active">Skills</div>
+      <div class="tab">Spells</div>
+      <div class="tab">Gear</div>
+      <div class="tab">Features</div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-inner">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" type="text" placeholder="Search skills…" />
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Passive trio -->
+    <div class="card">
+      <div class="section-label">Passive Senses</div>
+      <div class="passive-row">
+        <div class="passive-block">
+          <div class="passive-val">15</div>
+          <div class="passive-label">Perception</div>
+        </div>
+        <div class="passive-block">
+          <div class="passive-val">23</div>
+          <div class="passive-label">Investigation</div>
+        </div>
+        <div class="passive-block">
+          <div class="passive-val">11</div>
+          <div class="passive-label">Insight</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills card -->
+    <div class="card">
+      <!-- Ability filter -->
+      <div class="filter-row">
+        <div class="filter-pill active">All</div>
+        <div class="filter-pill">STR</div>
+        <div class="filter-pill">DEX</div>
+        <div class="filter-pill">CON</div>
+        <div class="filter-pill">INT</div>
+        <div class="filter-pill">WIS</div>
+        <div class="filter-pill">CHA</div>
+      </div>
+
+      <div class="card-divider" style="margin-bottom:4px"></div>
+
+      <!-- STR group -->
+      <div class="skill-group-header">
+        <div class="skill-group-label">Strength</div>
+        <div class="skill-group-line"></div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--ink);opacity:0.5">8 / −1</div>
+      </div>
+      <div class="skill-list">
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Athletics</div>
+          <div class="skill-attr">STR</div>
+          <div class="skill-mod">−1</div>
+        </div>
+      </div>
+
+      <!-- DEX group -->
+      <div class="skill-group-header">
+        <div class="skill-group-label">Dexterity</div>
+        <div class="skill-group-line"></div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--ink);opacity:0.5">16 / +3</div>
+      </div>
+      <div class="skill-list">
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Acrobatics</div>
+          <div class="skill-attr">DEX</div>
+          <div class="skill-mod pos">+3</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Sleight of Hand</div>
+          <div class="skill-attr">DEX</div>
+          <div class="skill-mod pos">+3</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Stealth</div>
+          <div class="skill-attr">DEX</div>
+          <div class="skill-mod pos">+3</div>
+        </div>
+      </div>
+
+      <!-- INT group -->
+      <div class="skill-group-header">
+        <div class="skill-group-label">Intelligence</div>
+        <div class="skill-group-line"></div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--gold)">20 / +5</div>
+      </div>
+      <div class="skill-list">
+        <div class="skill-row">
+          <div class="skill-dot expert"></div>
+          <div class="skill-name"><strong>Arcana</strong></div>
+          <div class="skill-attr">INT</div>
+          <div class="skill-mod high">+13</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot proficient"></div>
+          <div class="skill-name"><strong>History</strong></div>
+          <div class="skill-attr">INT</div>
+          <div class="skill-mod pos">+9</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot expert"></div>
+          <div class="skill-name"><strong>Investigation</strong></div>
+          <div class="skill-attr">INT</div>
+          <div class="skill-mod high">+13</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Nature</div>
+          <div class="skill-attr">INT</div>
+          <div class="skill-mod pos">+5</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Religion</div>
+          <div class="skill-attr">INT</div>
+          <div class="skill-mod pos">+5</div>
+        </div>
+      </div>
+
+      <!-- WIS group -->
+      <div class="skill-group-header">
+        <div class="skill-group-label">Wisdom</div>
+        <div class="skill-group-line"></div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--ink);opacity:0.5">13 / +1</div>
+      </div>
+      <div class="skill-list">
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Animal Handling</div>
+          <div class="skill-attr">WIS</div>
+          <div class="skill-mod pos">+1</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot proficient"></div>
+          <div class="skill-name"><strong>Insight</strong></div>
+          <div class="skill-attr">WIS</div>
+          <div class="skill-mod pos">+5</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Medicine</div>
+          <div class="skill-attr">WIS</div>
+          <div class="skill-mod pos">+1</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot proficient"></div>
+          <div class="skill-name"><strong>Perception</strong></div>
+          <div class="skill-attr">WIS</div>
+          <div class="skill-mod pos">+5</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Survival</div>
+          <div class="skill-attr">WIS</div>
+          <div class="skill-mod pos">+1</div>
+        </div>
+      </div>
+
+      <!-- CHA group -->
+      <div class="skill-group-header">
+        <div class="skill-group-label">Charisma</div>
+        <div class="skill-group-line"></div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--ink);opacity:0.5">11 / +0</div>
+      </div>
+      <div class="skill-list">
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Deception</div>
+          <div class="skill-attr">CHA</div>
+          <div class="skill-mod">+0</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Intimidation</div>
+          <div class="skill-attr">CHA</div>
+          <div class="skill-mod">+0</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Performance</div>
+          <div class="skill-attr">CHA</div>
+          <div class="skill-mod">+0</div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-dot"></div>
+          <div class="skill-name">Persuasion</div>
+          <div class="skill-attr">CHA</div>
+          <div class="skill-mod">+0</div>
+        </div>
+      </div>
+
+      <div class="card-divider" style="margin-top:4px"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot"></div> Untrained</div>
+        <div class="legend-item"><div class="legend-dot p"></div> Proficient</div>
+        <div class="legend-item"><div class="legend-dot e"></div> Expertise</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active"><div class="nav-icon">⚔</div><div class="nav-label">Sheet</div></div>
+    <div class="nav-item"><div class="nav-icon">📖</div><div class="nav-label">Spellbook</div></div>
+    <div class="nav-item"><div class="nav-icon">🎒</div><div class="nav-label">Inventory</div></div>
+    <div class="nav-item"><div class="nav-icon">📜</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item"><div class="nav-icon">⚙</div><div class="nav-label">Settings</div></div>
+  </div>
+</div>
+</body>
+</html>
