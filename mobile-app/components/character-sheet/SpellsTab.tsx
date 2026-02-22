@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import SpellbookCard from './spells/SpellbookCard';
 import SpellcastingStatsCard from './spells/SpellcastingStatsCard';
 import SpellSlotsCard from './spells/SpellSlotsCard';
+import SheetAddButton from './SheetAddButton';
 
 type CharacterSpellSlot = {
     id: string;
@@ -86,14 +86,11 @@ export default function SpellsTab({
                     onSetPrepared={onSetSpellPrepared}
                 />
 
-                <Pressable
-                    style={styles.addButton}
-                    onPress={handleAddSpell}
-                    accessibilityRole="button"
+                <SheetAddButton
+                    label="+ Add Spell"
                     accessibilityLabel="Add spell"
-                >
-                    <Text style={styles.addButtonText}>+ Add Spell</Text>
-                </Pressable>
+                    onPress={handleAddSpell}
+                />
             </ScrollView>
         </View>
     );
@@ -112,22 +109,5 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: fantasyTokens.spacing.xl * 2,
         gap: 12,
-    },
-    addButton: {
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: 'rgba(201,146,42,0.3)',
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 13,
-    },
-    addButtonText: {
-        fontFamily: 'serif',
-        fontSize: 10,
-        letterSpacing: 2,
-        textTransform: 'uppercase',
-        color: fantasyTokens.colors.gold,
-        opacity: 0.7,
     },
 });
