@@ -1,5 +1,8 @@
 import { MD3DarkTheme, MD3LightTheme, MD3Theme } from 'react-native-paper';
 
+/**
+ * Shared design tokens used across the mobile UI.
+ */
 export const fantasyTokens = {
     colors: {
         parchment: '#f6e9cf',
@@ -36,8 +39,28 @@ export const fantasyTokens = {
         gentle: 320,
         stagger: 36,
     },
+    breakpoints: {
+        tablet: 768,
+    },
+    rail: {
+        collapsedWidth: 48,
+        expandedWidth: 210,
+        background: '#110b07',
+        border: 'rgba(201,146,42,0.15)',
+        borderStrong: 'rgba(201,146,42,0.22)',
+        icon: 'rgba(201,146,42,0.5)',
+        iconActive: '#c4a470',
+        label: 'rgba(201,146,42,0.55)',
+        labelActive: '#c4a470',
+        pressed: 'rgba(201,146,42,0.07)',
+        muted: 'rgba(201,146,42,0.3)',
+        backdrop: 'rgba(0,0,0,0.58)',
+    },
 };
 
+/**
+ * Builds the React Native Paper theme from the current colour scheme.
+ */
 export function buildFantasyTheme(colorScheme: string | null | undefined): MD3Theme {
     const base = colorScheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
 
