@@ -19,6 +19,22 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
             spellSaveDC
             spellAttackBonus
             conditions
+            attacks {
+                id
+                name
+                attackBonus
+                damage
+                type
+            }
+            inventory {
+                id
+                name
+                quantity
+                weight
+                description
+                equipped
+                magical
+            }
             spellSlots {
                 id
                 level
@@ -82,6 +98,13 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
                     sleightOfHand
                     stealth
                     survival
+                }
+                currency {
+                    cp
+                    sp
+                    ep
+                    gp
+                    pp
                 }
             }
         }
