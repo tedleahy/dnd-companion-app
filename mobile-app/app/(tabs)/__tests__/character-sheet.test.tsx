@@ -34,6 +34,74 @@ const MOCK_CHARACTER = {
     spellSaveDC: 17,
     spellAttackBonus: 9,
     conditions: [] as string[],
+    attacks: [
+        {
+            __typename: 'Attack',
+            id: 'attack-1',
+            name: 'Dagger',
+            attackBonus: '+7',
+            damage: '1d4+3 piercing',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-2',
+            name: 'Staff of Power',
+            attackBonus: '+9',
+            damage: '1d6+5 bludgeoning',
+            type: 'melee',
+        },
+        {
+            __typename: 'Attack',
+            id: 'attack-3',
+            name: 'Spell Attack',
+            attackBonus: '+10',
+            damage: 'by spell',
+            type: 'spell',
+        },
+    ],
+    inventory: [
+        {
+            __typename: 'InventoryItem',
+            id: 'item-1',
+            name: 'Staff of Power',
+            quantity: 1,
+            weight: 4,
+            description: '+2 weapon, spell attack & DC bonus',
+            equipped: true,
+            magical: true,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-2',
+            name: 'Ring of Protection',
+            quantity: 1,
+            weight: null,
+            description: '+1 AC and saving throws',
+            equipped: true,
+            magical: true,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-3',
+            name: 'Spellbook',
+            quantity: 1,
+            weight: 3,
+            description: 'Contains 26 spells',
+            equipped: false,
+            magical: false,
+        },
+        {
+            __typename: 'InventoryItem',
+            id: 'item-4',
+            name: 'Potion of Greater Healing',
+            quantity: 3,
+            weight: 0.5,
+            description: 'Restores 4d4+4 HP',
+            equipped: false,
+            magical: true,
+        },
+    ],
     spellSlots: [
         {
             __typename: 'SpellSlot',
@@ -154,6 +222,14 @@ const MOCK_CHARACTER = {
             sleightOfHand: ProficiencyLevel.None,
             stealth: ProficiencyLevel.Proficient,
             survival: ProficiencyLevel.None,
+        },
+        currency: {
+            __typename: 'Currency',
+            cp: 0,
+            sp: 14,
+            ep: 0,
+            gp: 847,
+            pp: 3,
         },
     },
 };
@@ -561,6 +637,27 @@ describe('CharacterSheetScreen', () => {
         expect(screen.getByText('Fireball')).toBeTruthy();
         expect(screen.getByText('Detect Magic')).toBeTruthy();
         expect(screen.getByText('+9')).toBeTruthy();
+    });
+
+    it('switches to the Gear tab and shows currency, attacks, and inventory', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Gear tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Gear tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Currency')).toBeTruthy();
+        });
+
+        expect(screen.getByTestId('currency-gp-amount')).toHaveTextContent('847');
+        expect(screen.getByText('Attacks')).toBeTruthy();
+        expect(screen.getByText('Dagger')).toBeTruthy();
+        expect(screen.getByTestId('attack-stats-attack-1')).toHaveStyle({ alignItems: 'flex-end' });
+        expect(screen.getByText('Backpack')).toBeTruthy();
+        expect(screen.getByText('+ Add Item')).toBeTruthy();
+        expect(screen.queryByText('Encumbrance')).toBeNull();
     });
 
     it('updates spell slot count optimistically when a slot pip is pressed', async () => {

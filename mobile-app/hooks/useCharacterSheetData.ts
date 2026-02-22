@@ -60,12 +60,47 @@ type CharacterSpellbookEntry = {
     };
 };
 
-type CharacterWithSpells = CurrentUserCharactersQuery['currentUserCharacters'][number] & {
+type CharacterAttack = {
+    __typename?: 'Attack';
+    id: string;
+    name: string;
+    attackBonus: string;
+    damage: string;
+    type: string;
+};
+
+type CharacterInventoryItem = {
+    __typename?: 'InventoryItem';
+    id: string;
+    name: string;
+    quantity: number;
+    weight?: number | null;
+    description?: string | null;
+    equipped: boolean;
+    magical: boolean;
+};
+
+type CharacterCurrency = {
+    __typename?: 'Currency';
+    cp: number;
+    sp: number;
+    ep: number;
+    gp: number;
+    pp: number;
+};
+
+type BaseCharacter = CurrentUserCharactersQuery['currentUserCharacters'][number];
+type BaseCharacterStats = NonNullable<BaseCharacter['stats']>;
+
+type CharacterWithSpells = Omit<BaseCharacter, 'stats'> & {
     spellcastingAbility?: string | null;
     spellSaveDC?: number | null;
     spellAttackBonus?: number | null;
     spellSlots: CharacterSpellSlot[];
     spellbook: CharacterSpellbookEntry[];
+    attacks: CharacterAttack[];
+    inventory: CharacterInventoryItem[];
+    stats?: (BaseCharacterStats & { currency: CharacterCurrency }) | null;
 };
 
 type CurrentUserCharactersWithSpellsQuery = {

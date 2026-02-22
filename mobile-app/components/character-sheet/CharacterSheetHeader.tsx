@@ -3,7 +3,7 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 export const CHARACTER_SHEET_TABS = ['Core', 'Skills', 'Spells', 'Gear', 'Features'] as const;
-const INTERACTIVE_TABS = ['Core', 'Skills', 'Spells'] as const;
+const INTERACTIVE_TABS = ['Core', 'Skills', 'Spells', 'Gear'] as const;
 
 export type CharacterSheetTab = (typeof INTERACTIVE_TABS)[number];
 

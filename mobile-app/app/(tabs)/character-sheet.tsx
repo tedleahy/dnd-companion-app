@@ -9,6 +9,7 @@ import AbilityScoresAndSkillsCard from '@/components/character-sheet/AbilityScor
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import SkillsTab from '@/components/character-sheet/SkillsTab';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
+import GearTab from '@/components/character-sheet/GearTab';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
@@ -77,6 +78,7 @@ export default function CharacterSheetScreen() {
                 onTabPress={setActiveTab}
             />
             {activeTab === 'Core' && (
+                // TODO: move this into a <CoreTab> component, similar to the other tabs below
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={styles.scrollContent}
@@ -129,6 +131,14 @@ export default function CharacterSheetScreen() {
                     spellbook={character.spellbook}
                     onToggleSpellSlot={handleToggleSpellSlot}
                     onSetSpellPrepared={handleSetSpellPrepared}
+                />
+            )}
+
+            {activeTab === 'Gear' && (
+                <GearTab
+                    attacks={character.attacks}
+                    inventory={character.inventory}
+                    currency={stats.currency}
                 />
             )}
         </View>
