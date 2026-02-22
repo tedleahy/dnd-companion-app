@@ -23,6 +23,7 @@ export default function CharacterSheetScreen() {
         isUnauthenticated,
         handleToggleInspiration,
         handleUpdateDeathSaves,
+        handleUpdateSkillProficiency,
     } = useCharacterSheetData();
 
     useEffect(() => {
@@ -72,12 +73,12 @@ export default function CharacterSheetScreen() {
                 activeTab={activeTab}
                 onTabPress={setActiveTab}
             />
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {activeTab === 'Core' && (
+            {activeTab === 'Core' && (
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
                     <>
                         <VitalsCard
                             hp={stats.hp}
@@ -104,16 +105,17 @@ export default function CharacterSheetScreen() {
                             onUpdate={handleUpdateDeathSaves}
                         />
                     </>
-                )}
+                </ScrollView>
+            )}
 
-                {activeTab === 'Skills' && (
-                    <SkillsTab
-                        abilityScores={stats.abilityScores}
-                        proficiencyBonus={character.proficiencyBonus}
-                        skillProficiencies={stats.skillProficiencies}
-                    />
-                )}
-            </ScrollView>
+            {activeTab === 'Skills' && (
+                <SkillsTab
+                    abilityScores={stats.abilityScores}
+                    proficiencyBonus={character.proficiencyBonus}
+                    skillProficiencies={stats.skillProficiencies}
+                    onUpdateSkillProficiency={handleUpdateSkillProficiency}
+                />
+            )}
         </View>
     );
 }

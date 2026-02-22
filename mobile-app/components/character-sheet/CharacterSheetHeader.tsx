@@ -1,6 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
+
+export const CHARACTER_SHEET_TABS = ['Core', 'Skills', 'Spells', 'Gear', 'Features'] as const;
+const INTERACTIVE_TABS = ['Core', 'Skills'] as const;
+
+export type CharacterSheetTab = (typeof INTERACTIVE_TABS)[number];
 
 type CharacterSheetHeaderProps = {
     name: string;
@@ -9,7 +14,13 @@ type CharacterSheetHeaderProps = {
     subclass?: string;
     race: string;
     alignment: string;
+    activeTab: CharacterSheetTab;
+    onTabPress: (tab: CharacterSheetTab) => void;
 };
+
+function isInteractiveTab(tab: string): tab is CharacterSheetTab {
+    return INTERACTIVE_TABS.includes(tab as CharacterSheetTab);
+}
 
 /**
  * Sticky header for the character sheet, matching the HTML reference.
@@ -17,13 +28,6 @@ type CharacterSheetHeaderProps = {
  * Shows the "Character Codex" label, character name, and a subtitle line
  * with level/class/race/alignment. Also renders a visual-only tab bar
  * with "Core" as the active tab (other tabs are placeholders for now).
- *
- * **React Native learning note:**
- * In the HTML prototype this header uses `position: sticky` to stay pinned
- * while the content scrolls. In React Native there's no CSS `position: sticky`.
- * Instead, we keep the header *outside* the ScrollView in the parent layout,
- * so it naturally stays fixed at the top while the ScrollView content scrolls
- * beneath it.
  */
 export default function CharacterSheetHeader({
     name,
@@ -32,10 +36,10 @@ export default function CharacterSheetHeader({
     subclass,
     race,
     alignment,
+    activeTab,
+    onTabPress,
 }: CharacterSheetHeaderProps) {
     const subtitle = `Level ${level} ${className}${subclass ? ` (${subclass})` : ''} · ${race} · ${alignment}`;
-
-    const tabs = ['Core', 'Skills', 'Spells', 'Gear', 'Features'];
 
     return (
         <View style={styles.header}>
@@ -44,20 +48,34 @@ export default function CharacterSheetHeader({
             <Text style={styles.charSubtitle}>{subtitle}</Text>
 
             <View style={styles.tabBar}>
-                {tabs.map((tab) => (
-                    <View
-                        key={tab}
-                        style={[styles.tab, tab === 'Core' && styles.tabActive]}
-                    >
-                        <Text style={[
-                            styles.tabText,
-                            tab === 'Core' && styles.tabTextActive,
-                        ]}>
-                            {tab}
-                        </Text>
-                        {tab === 'Core' && <View style={styles.tabIndicator} />}
-                    </View>
-                ))}
+                {CHARACTER_SHEET_TABS.map((tab) => {
+                    const isActive = tab === activeTab;
+                    const canPress = isInteractiveTab(tab);
+
+                    if (canPress) {
+                        return (
+                            <Pressable
+                                key={tab}
+                                style={styles.tab}
+                                onPress={() => onTabPress(tab)}
+                                accessibilityRole="tab"
+                                accessibilityLabel={`Open ${tab} tab`}
+                                accessibilityState={{ selected: isActive }}
+                            >
+                                <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+                                    {tab}
+                                </Text>
+                                {isActive && <View style={styles.tabIndicator} />}
+                            </Pressable>
+                        );
+                    }
+
+                    return (
+                        <View key={tab} style={styles.tab}>
+                            <Text style={styles.tabText}>{tab}</Text>
+                        </View>
+                    );
+                })}
             </View>
         </View>
     );
@@ -108,7 +126,6 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
         position: 'relative',
     },
-    tabActive: {},
     tabText: {
         fontFamily: 'serif',
         fontSize: 9.5,

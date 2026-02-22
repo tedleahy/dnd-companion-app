@@ -87,3 +87,31 @@ export const UPDATE_DEATH_SAVES = gql`
         }
     }
 `;
+
+export const UPDATE_SKILL_PROFICIENCIES = gql`
+    mutation UpdateSkillProficiencies($characterId: ID!, $input: SkillProficienciesInput!) {
+        updateSkillProficiencies(characterId: $characterId, input: $input) {
+            id
+            skillProficiencies {
+                acrobatics
+                animalHandling
+                arcana
+                athletics
+                deception
+                history
+                insight
+                intimidation
+                investigation
+                medicine
+                nature
+                perception
+                performance
+                persuasion
+                religion
+                sleightOfHand
+                stealth
+                survival
+            }
+        }
+    }
+`;

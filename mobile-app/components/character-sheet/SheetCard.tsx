@@ -10,18 +10,10 @@ type SheetCardProps = {
 };
 
 /**
- * Parchment-style card container matching the HTML reference design.
- *
- * **React Native learning note:**
- * Unlike CSS where you can use `::before` pseudo-elements for texture overlays,
- * React Native doesn't support pseudo-elements. We achieve the card look purely
- * through background color, border radius, and shadow. The subtle noise texture
- * from the HTML prototype is omitted for now — it could be added later with an
- * `<Image>` overlay or SVG if desired.
+ * Parchment-style card container.
  *
  * The `FadeInDown` animation from react-native-reanimated gives each card a
- * staggered entrance animation, similar to the CSS `@keyframes fadeUp` in the
- * HTML prototype.
+ * staggered entrance animation
  */
 export default function SheetCard({ children, index = 0, style }: SheetCardProps) {
     return (
@@ -41,11 +33,5 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: fantasyTokens.colors.cardBg,
         borderRadius: 14,
-        overflow: 'hidden',
-        elevation: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.6,
-        shadowRadius: 20,
     },
 });

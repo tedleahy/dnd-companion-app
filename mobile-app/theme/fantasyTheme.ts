@@ -7,7 +7,7 @@ export const fantasyTokens = {
         cardBg: '#f0e0bc',
         inkDark: '#2b1c11',
         inkLight: '#3d2b1f',
-        inkSoft: '#6e5130',
+        inkSoft: '#6e513084',
         ember: '#5f4325',
         gold: '#c4a470',
         goldLight: '#e8b84b',
