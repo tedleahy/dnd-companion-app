@@ -46,9 +46,11 @@ export default function CharacterSheetHeader({
 
     return (
         <View style={styles.header}>
-            <Text style={styles.codexLabel}>Character Codex</Text>
-            <Text style={styles.charName}>{name}</Text>
-            <Text style={styles.charSubtitle}>{subtitle}</Text>
+            <View style={styles.headerText}>
+                <Text style={styles.codexLabel}>Character Codex</Text>
+                <Text style={styles.charName}>{name}</Text>
+                <Text style={styles.charSubtitle}>{subtitle}</Text>
+            </View>
 
             <View style={styles.tabBar}>
                 {CHARACTER_SHEET_TABS.map((tab) => {
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(201,146,42,0.2)',
     },
+    headerText: {
+        alignItems: 'center',
+    },
     codexLabel: {
         fontFamily: 'serif',
         fontSize: 9,
@@ -92,6 +97,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         color: fantasyTokens.colors.gold,
         opacity: 0.8,
+        textAlign: 'center',
     },
     charName: {
         fontFamily: 'serif',
@@ -101,6 +107,7 @@ const styles = StyleSheet.create({
         lineHeight: 32,
         letterSpacing: 0.5,
         marginTop: 6,
+        textAlign: 'center',
     },
     charSubtitle: {
         fontFamily: 'serif',
@@ -108,6 +115,7 @@ const styles = StyleSheet.create({
         color: fantasyTokens.colors.gold,
         marginTop: 2,
         fontStyle: 'italic',
+        textAlign: 'center',
     },
     tabBar: {
         flexDirection: 'row',

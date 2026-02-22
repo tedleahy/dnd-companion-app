@@ -9,6 +9,7 @@ import { gql } from '@apollo/client';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
+import RailScreenShell from '@/components/navigation/RailScreenShell';
 
 /** Parameters driving the spell search: optional name substring and structured filters. */
 type SearchParams = {
@@ -138,41 +139,43 @@ export default function SpellSearch() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topRow}>
-                <Searchbar
-                    style={styles.searchBar}
-                    inputStyle={{ color: fantasyTokens.colors.inkDark, fontFamily: 'serif' }}
-                    iconColor={fantasyTokens.colors.ember}
-                    placeholderTextColor={fantasyTokens.colors.inkSoft}
-                    placeholder="Search spells..."
-                    onChangeText={setPendingSearchName}
-                    value={pendingSearchName}
-                />
-                <IconButton
-                    icon="logout"
-                    iconColor={fantasyTokens.colors.inkSoft}
-                    size={20}
-                    onPress={signOut}
+        <RailScreenShell>
+            <View style={styles.container}>
+                <View style={styles.topRow}>
+                    <Searchbar
+                        style={styles.searchBar}
+                        inputStyle={{ color: fantasyTokens.colors.inkDark, fontFamily: 'serif' }}
+                        iconColor={fantasyTokens.colors.ember}
+                        placeholderTextColor={fantasyTokens.colors.inkSoft}
+                        placeholder="Search spells..."
+                        onChangeText={setPendingSearchName}
+                        value={pendingSearchName}
+                    />
+                    <IconButton
+                        icon="logout"
+                        iconColor={fantasyTokens.colors.inkSoft}
+                        size={20}
+                        onPress={signOut}
+                    />
+                </View>
+                <Button
+                    icon="filter"
+                    mode="outlined"
+                    onPress={() => setDrawerVisible(true)}
+                    style={styles.filterButton}
+                    textColor={fantasyTokens.colors.parchment}
+                >
+                    {activeFilterCount > 0 ? `Filter (${activeFilterCount})` : 'Filter'}
+                </Button>
+                <SpellList spells={spells} loading={loading || isUnauthenticated} />
+                <SpellFilterDrawer
+                    visible={drawerVisible}
+                    filters={searchParams.filters}
+                    onClose={() => setDrawerVisible(false)}
+                    onChange={(filters) => setSearchParams((prev) => ({ ...prev, filters }))}
                 />
             </View>
-            <Button
-                icon="filter"
-                mode="outlined"
-                onPress={() => setDrawerVisible(true)}
-                style={styles.filterButton}
-                textColor={fantasyTokens.colors.parchment}
-            >
-                {activeFilterCount > 0 ? `Filter (${activeFilterCount})` : 'Filter'}
-            </Button>
-            <SpellList spells={spells} loading={loading || isUnauthenticated} />
-            <SpellFilterDrawer
-                visible={drawerVisible}
-                filters={searchParams.filters}
-                onClose={() => setDrawerVisible(false)}
-                onChange={(filters) => setSearchParams((prev) => ({ ...prev, filters }))}
-            />
-        </View>
+        </RailScreenShell>
     );
 }
 
