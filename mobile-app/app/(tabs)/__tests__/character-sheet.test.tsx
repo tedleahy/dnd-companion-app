@@ -9,6 +9,7 @@ import {
     GET_CURRENT_USER_CHARACTERS,
     TOGGLE_INSPIRATION,
     UPDATE_DEATH_SAVES,
+    UPDATE_SKILL_PROFICIENCIES,
 } from '@/graphql/characterSheet.operations';
 import CharacterSheetScreen from '../character-sheet';
 
@@ -82,6 +83,8 @@ const MOCK_CHARACTER = {
     },
 };
 
+const { __typename: _skillTypeName, ...INITIAL_SKILL_INPUT } = MOCK_CHARACTER.stats.skillProficiencies;
+
 const CHARACTERS_MOCK: MockLink.MockedResponse = {
     request: { query: GET_CURRENT_USER_CHARACTERS },
     result: {
@@ -138,6 +141,31 @@ const UPDATE_DEATH_SAVES_MOCK: MockLink.MockedResponse = {
                     __typename: 'DeathSaves',
                     successes: 2,
                     failures: 0,
+                },
+            },
+        },
+    },
+};
+
+const UPDATE_SKILLS_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UPDATE_SKILL_PROFICIENCIES,
+        variables: {
+            characterId: 'char-1',
+            input: {
+                ...INITIAL_SKILL_INPUT,
+                perception: ProficiencyLevel.Expert,
+            },
+        },
+    },
+    result: {
+        data: {
+            updateSkillProficiencies: {
+                __typename: 'CharacterStats',
+                id: 'stats-1',
+                skillProficiencies: {
+                    ...MOCK_CHARACTER.stats.skillProficiencies,
+                    perception: ProficiencyLevel.Expert,
                 },
             },
         },
@@ -318,7 +346,7 @@ describe('CharacterSheetScreen', () => {
     });
 
     it('cycles skill proficiency and recalculates passive score', async () => {
-        renderScreen();
+        renderScreen([CHARACTERS_MOCK, UPDATE_SKILLS_MOCK]);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Open Skills tab')).toBeTruthy();
@@ -327,6 +355,12 @@ describe('CharacterSheetScreen', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('15');
+        });
+
+        fireEvent.changeText(screen.getByLabelText('Search skills'), 'Perception');
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Cycle proficiency for Perception')).toBeTruthy();
         });
 
         fireEvent.press(screen.getByLabelText('Cycle proficiency for Perception'));
