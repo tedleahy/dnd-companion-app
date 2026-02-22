@@ -30,6 +30,7 @@ GraphQL API shape
 
 Coding conventions
 - TypeScript everywhere.
+- Use JSDoc for all functions, classes, constants, etc
 - Keep components simple and modern; use react-native-paper patterns.
 - Avoid having multiple components in the same file where possible.
 - Prefer small, composable modules; avoid overengineering early.
@@ -37,11 +38,13 @@ Coding conventions
 - Use async/await in a try/catch block instead of .then(), .catch(), etc., where possible
 - When creating components, check existing components to see if there is anything similar that could be reused/extended to reduce duplication.
 - Avoid creating functions/variables that are only used once, unless doing so improves readability.
+- Use british english for spellings in functions, docs, etc., e.g. "initialise" instead of "initialize"
 
 UI style
 - Give the app a fantasy-style look and feel to it.
 
 Git Commits
+- Don't commit anything unless you're explicitly told to.
 - Group changes into commits and write detailed commit messages for each of them.
 - Follow these general examples for formatting them:
     - feat(mobile): Added x screen to y tab, allowing user to do z
@@ -62,3 +65,4 @@ General instructions
 - Shell/testing note: quote paths that contain route-group parentheses (for example `app/(tabs)/...`) when using `zsh` commands, and prefer broad Jest patterns (for example `yarn test character-sheet.test.tsx`) over literal `app/(tabs)/...` paths to avoid glob/pattern mismatches.
 - React Native testing note: `SectionList` virtualizes rows, so off-screen items may not exist in the test tree. In tests, filter/search first or scroll before asserting/pressing deep list rows.
 - GraphQL codegen note: `mobile-app/codegen.yml` currently scans `app/**/*.tsx` documents only. GraphQL operations in `mobile-app/graphql/*.ts` will not auto-refresh operation result/variables types unless moved into scanned files or the config is expanded.
+- Prisma migration note: if `bun db:migrate` fails in local dev (for example DB not running), you can still generate a migration SQL script by diffing schemas: `prisma migrate diff --from-schema /tmp/old_schema.prisma --to-schema prisma/schema.prisma --script > prisma/migrations/<timestamp>_<name>/migration.sql`.
