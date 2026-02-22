@@ -1,12 +1,15 @@
-import type { ApolloError } from '@apollo/client';
+import type { ErrorLike } from '@apollo/client';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 
-export function isUnauthenticatedError(error?: ApolloError): boolean {
+export function isUnauthenticatedError(error?: ErrorLike): boolean {
     if (!error) return false;
 
-    const graphQLErrorCode = (error.graphQLErrors ?? []).find(
-        (graphQLError) => graphQLError.extensions?.code === 'UNAUTHENTICATED'
-    );
-    if (graphQLErrorCode) return true;
+    if (CombinedGraphQLErrors.is(error)) {
+        const graphQLErrorCode = error.errors.find(
+            (graphQLError) => graphQLError.extensions?.code === 'UNAUTHENTICATED',
+        );
+        if (graphQLErrorCode) return true;
+    }
 
     return error.message.includes('UNAUTHENTICATED');
 }
