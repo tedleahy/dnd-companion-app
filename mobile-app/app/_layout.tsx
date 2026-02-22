@@ -28,10 +28,6 @@ export default function RootLayout() {
                                 name="spells/[id]"
                                 options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
                             />
-                            <Stack.Screen
-                                name="spell-lists/[id]"
-                                options={{ animation: 'slide_from_right', animationDuration: fantasyTokens.motion.standard }}
-                            />
                         </Stack>
                     </PaperProvider>
                 </ApolloProvider>

@@ -38,15 +38,6 @@ export default function TabsLayout() {
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="spell-lists"
-                options={{
-                    title: 'Spell Lists',
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="bookmark-multiple" size={size} color={color} />
-                    ),
-                }}
-            />
         </Tabs>
     );
 }
