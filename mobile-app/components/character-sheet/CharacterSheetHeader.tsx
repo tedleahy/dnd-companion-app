@@ -3,7 +3,7 @@ import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
 export const CHARACTER_SHEET_TABS = ['Core', 'Skills', 'Spells', 'Gear', 'Features'] as const;
-const INTERACTIVE_TABS = ['Core', 'Skills'] as const;
+const INTERACTIVE_TABS = ['Core', 'Skills', 'Spells'] as const;
 
 export type CharacterSheetTab = (typeof INTERACTIVE_TABS)[number];
 
@@ -26,8 +26,8 @@ function isInteractiveTab(tab: string): tab is CharacterSheetTab {
  * Sticky header for the character sheet, matching the HTML reference.
  *
  * Shows the "Character Codex" label, character name, and a subtitle line
- * with level/class/race/alignment. Also renders a visual-only tab bar
- * with "Core" as the active tab (other tabs are placeholders for now).
+ * with level/class/race/alignment. Tabs are progressively enabled as
+ * each character-sheet domain is implemented.
  */
 export default function CharacterSheetHeader({
     name,

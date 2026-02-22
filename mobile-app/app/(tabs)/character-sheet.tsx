@@ -8,6 +8,7 @@ import QuickStatsCard from '@/components/character-sheet/QuickStatsCard';
 import AbilityScoresAndSkillsCard from '@/components/character-sheet/AbilityScoresAndSkillsCard';
 import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import SkillsTab from '@/components/character-sheet/SkillsTab';
+import SpellsTab from '@/components/character-sheet/SpellsTab';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
@@ -24,6 +25,8 @@ export default function CharacterSheetScreen() {
         handleToggleInspiration,
         handleUpdateDeathSaves,
         handleUpdateSkillProficiency,
+        handleToggleSpellSlot,
+        handleSetSpellPrepared,
     } = useCharacterSheetData();
 
     useEffect(() => {
@@ -114,6 +117,18 @@ export default function CharacterSheetScreen() {
                     proficiencyBonus={character.proficiencyBonus}
                     skillProficiencies={stats.skillProficiencies}
                     onUpdateSkillProficiency={handleUpdateSkillProficiency}
+                />
+            )}
+
+            {activeTab === 'Spells' && (
+                <SpellsTab
+                    spellcastingAbility={character.spellcastingAbility}
+                    spellSaveDC={character.spellSaveDC}
+                    spellAttackBonus={character.spellAttackBonus}
+                    spellSlots={character.spellSlots}
+                    spellbook={character.spellbook}
+                    onToggleSpellSlot={handleToggleSpellSlot}
+                    onSetSpellPrepared={handleSetSpellPrepared}
                 />
             )}
         </View>

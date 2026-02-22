@@ -15,8 +15,29 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
             ac
             speed
             initiative
+            spellcastingAbility
             spellSaveDC
+            spellAttackBonus
             conditions
+            spellSlots {
+                id
+                level
+                total
+                used
+            }
+            spellbook {
+                prepared
+                spell {
+                    id
+                    name
+                    level
+                    schoolIndex
+                    castingTime
+                    range
+                    concentration
+                    ritual
+                }
+            }
             stats {
                 id
                 abilityScores {
@@ -111,6 +132,39 @@ export const UPDATE_SKILL_PROFICIENCIES = gql`
                 sleightOfHand
                 stealth
                 survival
+            }
+        }
+    }
+`;
+
+export const TOGGLE_SPELL_SLOT = gql`
+    mutation ToggleSpellSlot($characterId: ID!, $level: Int!) {
+        toggleSpellSlot(characterId: $characterId, level: $level) {
+            id
+            level
+            total
+            used
+        }
+    }
+`;
+
+export const PREPARE_SPELL = gql`
+    mutation PrepareSpell($characterId: ID!, $spellId: ID!) {
+        prepareSpell(characterId: $characterId, spellId: $spellId) {
+            prepared
+            spell {
+                id
+            }
+        }
+    }
+`;
+
+export const UNPREPARE_SPELL = gql`
+    mutation UnprepareSpell($characterId: ID!, $spellId: ID!) {
+        unprepareSpell(characterId: $characterId, spellId: $spellId) {
+            prepared
+            spell {
+                id
             }
         }
     }

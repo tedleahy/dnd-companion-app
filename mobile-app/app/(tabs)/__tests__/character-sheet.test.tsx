@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react-native';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react-native';
 import { PaperProvider } from 'react-native-paper';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
@@ -7,7 +7,10 @@ import { ProficiencyLevel } from '@/types/generated_graphql_types';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import {
     GET_CURRENT_USER_CHARACTERS,
+    PREPARE_SPELL,
     TOGGLE_INSPIRATION,
+    TOGGLE_SPELL_SLOT,
+    UNPREPARE_SPELL,
     UPDATE_DEATH_SAVES,
     UPDATE_SKILL_PROFICIENCIES,
 } from '@/graphql/characterSheet.operations';
@@ -27,8 +30,80 @@ const MOCK_CHARACTER = {
     ac: 17,
     speed: 35,
     initiative: 3,
+    spellcastingAbility: 'intelligence',
     spellSaveDC: 17,
+    spellAttackBonus: 9,
     conditions: [] as string[],
+    spellSlots: [
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-1',
+            level: 1,
+            total: 4,
+            used: 1,
+        },
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-2',
+            level: 2,
+            total: 3,
+            used: 0,
+        },
+        {
+            __typename: 'SpellSlot',
+            id: 'slot-3',
+            level: 3,
+            total: 3,
+            used: 2,
+        },
+    ],
+    spellbook: [
+        {
+            __typename: 'CharacterSpell',
+            prepared: true,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-fireball',
+                name: 'Fireball',
+                level: 3,
+                schoolIndex: 'evocation',
+                castingTime: '1 action',
+                range: '150 feet',
+                concentration: false,
+                ritual: false,
+            },
+        },
+        {
+            __typename: 'CharacterSpell',
+            prepared: true,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-detect-magic',
+                name: 'Detect Magic',
+                level: 1,
+                schoolIndex: 'divination',
+                castingTime: '1 action',
+                range: 'Self',
+                concentration: true,
+                ritual: true,
+            },
+        },
+        {
+            __typename: 'CharacterSpell',
+            prepared: false,
+            spell: {
+                __typename: 'Spell',
+                id: 'spell-bigbys-hand',
+                name: "Bigby's Hand",
+                level: 5,
+                schoolIndex: 'evocation',
+                castingTime: '1 action',
+                range: '120 feet',
+                concentration: true,
+                ritual: false,
+            },
+        },
+    ],
     stats: {
         __typename: 'CharacterStats',
         id: 'stats-1',
@@ -172,6 +247,71 @@ const UPDATE_SKILLS_MOCK: MockLink.MockedResponse = {
     },
 };
 
+const TOGGLE_SLOT_LEVEL_1_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: TOGGLE_SPELL_SLOT,
+        variables: {
+            characterId: 'char-1',
+            level: 1,
+        },
+    },
+    result: {
+        data: {
+            toggleSpellSlot: {
+                __typename: 'SpellSlot',
+                id: 'slot-1',
+                level: 1,
+                total: 4,
+                used: 2,
+            },
+        },
+    },
+};
+
+const UNPREPARE_FIREBALL_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: UNPREPARE_SPELL,
+        variables: {
+            characterId: 'char-1',
+            spellId: 'spell-fireball',
+        },
+    },
+    result: {
+        data: {
+            unprepareSpell: {
+                __typename: 'CharacterSpell',
+                prepared: false,
+                spell: {
+                    __typename: 'Spell',
+                    id: 'spell-fireball',
+                },
+            },
+        },
+    },
+};
+
+const PREPARE_BIGBYS_HAND_MOCK: MockLink.MockedResponse = {
+    request: {
+        query: PREPARE_SPELL,
+        variables: {
+            characterId: 'char-1',
+            spellId: 'spell-bigbys-hand',
+        },
+    },
+    result: {
+        data: {
+            prepareSpell: {
+                __typename: 'CharacterSpell',
+                prepared: true,
+                spell: {
+                    __typename: 'Spell',
+                    id: 'spell-bigbys-hand',
+                },
+            },
+        },
+    },
+};
+
 function renderScreen(mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK]) {
     return render(
         <MockedProvider mocks={mocks}>
@@ -182,9 +322,27 @@ function renderScreen(mocks: MockLink.MockedResponse[] = [CHARACTERS_MOCK]) {
     );
 }
 
+async function pressAndFlush(target: Parameters<typeof fireEvent.press>[0]) {
+    await act(async () => {
+        fireEvent.press(target);
+        await Promise.resolve();
+    });
+}
+
+async function flushMicrotasks() {
+    await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+    });
+}
+
 describe('CharacterSheetScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+    });
+
+    afterEach(async () => {
+        await flushMicrotasks();
     });
 
     it('shows a loading indicator initially', () => {
@@ -270,7 +428,7 @@ describe('CharacterSheetScreen', () => {
             expect(screen.getByLabelText('Toggle inspiration')).toBeTruthy();
         });
 
-        fireEvent.press(screen.getByLabelText('Toggle inspiration'));
+        await pressAndFlush(screen.getByLabelText('Toggle inspiration'));
         await waitFor(() => {
             expect(screen.getByText('Inspired')).toBeTruthy();
         });
@@ -294,7 +452,7 @@ describe('CharacterSheetScreen', () => {
         const secondCircleBefore = screen.getByTestId('death-save-success-circle-2');
         expect(secondCircleBefore).toHaveStyle({ borderColor: fantasyTokens.colors.divider });
 
-        fireEvent.press(screen.getByLabelText('Death save success 2'));
+        await pressAndFlush(screen.getByLabelText('Death save success 2'));
 
         await waitFor(() => {
             const secondCircleAfter = screen.getByTestId('death-save-success-circle-2');
@@ -363,7 +521,7 @@ describe('CharacterSheetScreen', () => {
             expect(screen.getByLabelText('Cycle proficiency for Perception')).toBeTruthy();
         });
 
-        fireEvent.press(screen.getByLabelText('Cycle proficiency for Perception'));
+        await pressAndFlush(screen.getByLabelText('Cycle proficiency for Perception'));
 
         await waitFor(() => {
             expect(screen.getByTestId('passive-perception-value')).toHaveTextContent('19');
@@ -387,5 +545,87 @@ describe('CharacterSheetScreen', () => {
             expect(screen.getByText('Arcana')).toBeTruthy();
         });
         expect(screen.queryByText('Athletics')).toBeNull();
+    });
+
+    it('switches to the Spells tab and shows spellbook content', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Spells tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Spells tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Spellcasting')).toBeTruthy();
+        });
+        expect(screen.getByText('Fireball')).toBeTruthy();
+        expect(screen.getByText('Detect Magic')).toBeTruthy();
+        expect(screen.getByText('+9')).toBeTruthy();
+    });
+
+    it('updates spell slot count optimistically when a slot pip is pressed', async () => {
+        renderScreen([CHARACTERS_MOCK, TOGGLE_SLOT_LEVEL_1_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Spells tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Spells tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('3 / 4')).toBeTruthy();
+        });
+
+        await pressAndFlush(screen.getByTestId('spell-slot-pip-1-1'));
+
+        await waitFor(() => {
+            expect(screen.getByText('2 / 4')).toBeTruthy();
+        });
+    });
+
+    it('toggles a prepared spell to unprepared', async () => {
+        renderScreen([CHARACTERS_MOCK, UNPREPARE_FIREBALL_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Spells tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Spells tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepared-spell-fireball')).toHaveStyle({
+                backgroundColor: fantasyTokens.colors.crimson,
+            });
+        });
+
+        await pressAndFlush(screen.getByTestId('character-spell-prepared-spell-fireball'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepared-spell-fireball')).toHaveStyle({
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+            });
+        });
+    });
+
+    it('toggles an unprepared spell to prepared', async () => {
+        renderScreen([CHARACTERS_MOCK, PREPARE_BIGBYS_HAND_MOCK]);
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Spells tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Spells tab'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepared-spell-bigbys-hand')).toHaveStyle({
+                backgroundColor: 'transparent',
+            });
+        });
+
+        await pressAndFlush(screen.getByTestId('character-spell-prepared-spell-bigbys-hand'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('character-spell-prepared-spell-bigbys-hand')).toHaveStyle({
+                backgroundColor: fantasyTokens.colors.crimson,
+            });
+        });
     });
 });

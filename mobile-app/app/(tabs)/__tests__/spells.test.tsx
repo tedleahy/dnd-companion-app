@@ -26,6 +26,12 @@ const SEARCH_SPELLS = gql`
         spells(filter: $filter) {
             id
             name
+            level
+            schoolIndex
+            castingTime
+            range
+            concentration
+            ritual
         }
     }
 `;
@@ -35,8 +41,28 @@ const SPELLS_MOCK: MockLink.MockedResponse = {
     result: {
         data: {
             spells: [
-                { __typename: 'Spell', id: '1', name: 'Fireball' },
-                { __typename: 'Spell', id: '2', name: 'Magic Missile' },
+                {
+                    __typename: 'Spell',
+                    id: '1',
+                    name: 'Fireball',
+                    level: 3,
+                    schoolIndex: 'evocation',
+                    castingTime: '1 action',
+                    range: '150 feet',
+                    concentration: false,
+                    ritual: false,
+                },
+                {
+                    __typename: 'Spell',
+                    id: '2',
+                    name: 'Magic Missile',
+                    level: 1,
+                    schoolIndex: 'evocation',
+                    castingTime: '1 action',
+                    range: '120 feet',
+                    concentration: false,
+                    ritual: false,
+                },
             ],
         },
     },

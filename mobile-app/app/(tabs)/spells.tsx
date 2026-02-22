@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton, Searchbar } from 'react-native-paper';
 import { useQuery } from '@apollo/client/react';
-import SpellList from '@/components/SpellList';
+import SpellList, { type SpellListItem } from '@/components/SpellList';
 import SpellFilterDrawer, { EMPTY_FILTERS, type SpellFilters } from '@/components/SpellFilterDrawer';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 import { gql } from '@apollo/client';
-import { SpellsQuery } from '@/types/generated_graphql_types';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
@@ -17,12 +16,31 @@ type SearchParams = {
     filters: SpellFilters;
 };
 
+type SearchSpellsQueryData = {
+    spells: {
+        id: string;
+        name: string;
+        level: number;
+        schoolIndex: string;
+        castingTime: string;
+        range?: string | null;
+        concentration: boolean;
+        ritual: boolean;
+    }[];
+};
+
 /** GraphQL query that fetches a list of spell ids/names, optionally filtered. */
 const SEARCH_SPELLS = gql`
     query Spells($filter: SpellFilter) {
         spells(filter: $filter) {
             id
             name
+            level
+            schoolIndex
+            castingTime
+            range
+            concentration
+            ritual
         }
     }
 `;
@@ -75,7 +93,7 @@ export default function SpellSearch() {
         return Object.keys(filter).length > 0 ? filter : undefined;
     }
 
-    const { data, loading, error } = useQuery<SpellsQuery>(SEARCH_SPELLS, {
+    const { data, loading, error } = useQuery<SearchSpellsQueryData>(SEARCH_SPELLS, {
         variables: { filter: buildFilterVariable() },
         notifyOnNetworkStatusChange: true,
         returnPartialData: true,
@@ -86,9 +104,18 @@ export default function SpellSearch() {
         if (isUnauthenticated) router.replace('/(auth)/sign-in');
     }, [isUnauthenticated, router]);
 
-    const spells = (data?.spells ?? []).flatMap((spell) => {
+    const spells: SpellListItem[] = (data?.spells ?? []).flatMap((spell) => {
         if (!spell?.id || !spell?.name) return [];
-        return [{ id: spell.id, name: spell.name }];
+        return [{
+            id: spell.id,
+            name: spell.name,
+            level: spell.level,
+            schoolIndex: spell.schoolIndex,
+            castingTime: spell.castingTime,
+            range: spell.range,
+            concentration: spell.concentration,
+            ritual: spell.ritual,
+        }];
     });
 
     const activeFilterCount =
