@@ -2,11 +2,19 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { fantasyTokens } from '@/theme/fantasyTheme';
 
+/**
+ * Available top-level character sheet tabs in display order.
+ */
 export const CHARACTER_SHEET_TABS = ['Core', 'Skills', 'Spells', 'Gear', 'Features'] as const;
-const INTERACTIVE_TABS = ['Core', 'Skills', 'Spells', 'Gear'] as const;
 
-export type CharacterSheetTab = (typeof INTERACTIVE_TABS)[number];
+/**
+ * Union type of valid character sheet tab labels.
+ */
+export type CharacterSheetTab = (typeof CHARACTER_SHEET_TABS)[number];
 
+/**
+ * Props for the sticky character sheet header.
+ */
 type CharacterSheetHeaderProps = {
     name: string;
     level: number;
@@ -18,16 +26,11 @@ type CharacterSheetHeaderProps = {
     onTabPress: (tab: CharacterSheetTab) => void;
 };
 
-function isInteractiveTab(tab: string): tab is CharacterSheetTab {
-    return INTERACTIVE_TABS.includes(tab as CharacterSheetTab);
-}
-
 /**
  * Sticky header for the character sheet, matching the HTML reference.
  *
  * Shows the "Character Codex" label, character name, and a subtitle line
- * with level/class/race/alignment. Tabs are progressively enabled as
- * each character-sheet domain is implemented.
+ * with level/class/race/alignment.
  */
 export default function CharacterSheetHeader({
     name,
@@ -50,30 +53,21 @@ export default function CharacterSheetHeader({
             <View style={styles.tabBar}>
                 {CHARACTER_SHEET_TABS.map((tab) => {
                     const isActive = tab === activeTab;
-                    const canPress = isInteractiveTab(tab);
-
-                    if (canPress) {
-                        return (
-                            <Pressable
-                                key={tab}
-                                style={styles.tab}
-                                onPress={() => onTabPress(tab)}
-                                accessibilityRole="tab"
-                                accessibilityLabel={`Open ${tab} tab`}
-                                accessibilityState={{ selected: isActive }}
-                            >
-                                <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
-                                    {tab}
-                                </Text>
-                                {isActive && <View style={styles.tabIndicator} />}
-                            </Pressable>
-                        );
-                    }
 
                     return (
-                        <View key={tab} style={styles.tab}>
-                            <Text style={styles.tabText}>{tab}</Text>
-                        </View>
+                        <Pressable
+                            key={tab}
+                            style={styles.tab}
+                            onPress={() => onTabPress(tab)}
+                            accessibilityRole="tab"
+                            accessibilityLabel={`Open ${tab} tab`}
+                            accessibilityState={{ selected: isActive }}
+                        >
+                            <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+                                {tab}
+                            </Text>
+                            {isActive && <View style={styles.tabIndicator} />}
+                        </Pressable>
                     );
                 })}
             </View>
@@ -81,6 +75,7 @@ export default function CharacterSheetHeader({
     );
 }
 
+/** Styles for the character sheet header and tab bar. */
 const styles = StyleSheet.create({
     header: {
         backgroundColor: fantasyTokens.colors.night,

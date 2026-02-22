@@ -1,5 +1,8 @@
 import { gql } from '@apollo/client';
 
+/**
+ * Fetches the full character-sheet payload for the signed-in user.
+ */
 export const GET_CURRENT_USER_CHARACTERS = gql`
     query CurrentUserCharacters {
         currentUserCharacters {
@@ -19,6 +22,15 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
             spellSaveDC
             spellAttackBonus
             conditions
+            features {
+                id
+                name
+                source
+                description
+                usesMax
+                usesRemaining
+                recharge
+            }
             attacks {
                 id
                 name
@@ -79,6 +91,16 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
                     die
                 }
                 savingThrowProficiencies
+                traits {
+                    personality
+                    ideals
+                    bonds
+                    flaws
+                    armorProficiencies
+                    weaponProficiencies
+                    toolProficiencies
+                    languages
+                }
                 skillProficiencies {
                     acrobatics
                     animalHandling
@@ -111,6 +133,9 @@ export const GET_CURRENT_USER_CHARACTERS = gql`
     }
 `;
 
+/**
+ * Toggles a character's inspiration flag.
+ */
 export const TOGGLE_INSPIRATION = gql`
     mutation ToggleInspiration($characterId: ID!) {
         toggleInspiration(characterId: $characterId) {
@@ -120,6 +145,9 @@ export const TOGGLE_INSPIRATION = gql`
     }
 `;
 
+/**
+ * Updates death save successes and failures.
+ */
 export const UPDATE_DEATH_SAVES = gql`
     mutation UpdateDeathSaves($characterId: ID!, $input: DeathSavesInput!) {
         updateDeathSaves(characterId: $characterId, input: $input) {
@@ -132,6 +160,9 @@ export const UPDATE_DEATH_SAVES = gql`
     }
 `;
 
+/**
+ * Updates one or more skill proficiency values.
+ */
 export const UPDATE_SKILL_PROFICIENCIES = gql`
     mutation UpdateSkillProficiencies($characterId: ID!, $input: SkillProficienciesInput!) {
         updateSkillProficiencies(characterId: $characterId, input: $input) {
@@ -160,6 +191,9 @@ export const UPDATE_SKILL_PROFICIENCIES = gql`
     }
 `;
 
+/**
+ * Cycles used spell slots at a given spell level.
+ */
 export const TOGGLE_SPELL_SLOT = gql`
     mutation ToggleSpellSlot($characterId: ID!, $level: Int!) {
         toggleSpellSlot(characterId: $characterId, level: $level) {
@@ -171,6 +205,9 @@ export const TOGGLE_SPELL_SLOT = gql`
     }
 `;
 
+/**
+ * Marks a known spell as prepared.
+ */
 export const PREPARE_SPELL = gql`
     mutation PrepareSpell($characterId: ID!, $spellId: ID!) {
         prepareSpell(characterId: $characterId, spellId: $spellId) {
@@ -182,6 +219,9 @@ export const PREPARE_SPELL = gql`
     }
 `;
 
+/**
+ * Marks a known spell as unprepared.
+ */
 export const UNPREPARE_SPELL = gql`
     mutation UnprepareSpell($characterId: ID!, $spellId: ID!) {
         unprepareSpell(characterId: $characterId, spellId: $spellId) {

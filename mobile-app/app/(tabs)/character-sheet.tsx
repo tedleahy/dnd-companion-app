@@ -10,12 +10,17 @@ import DeathSavesCard from '@/components/character-sheet/DeathSavesCard';
 import SkillsTab from '@/components/character-sheet/SkillsTab';
 import SpellsTab from '@/components/character-sheet/SpellsTab';
 import GearTab from '@/components/character-sheet/GearTab';
+import FeaturesTab from '@/components/character-sheet/FeaturesTab';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import useCharacterSheetData from '@/hooks/useCharacterSheetData';
 import { isAbilityKey } from '@/lib/characterSheetUtils';
 
+/**
+ * Character sheet tab screen that renders Core/Skills/Spells/Gear/Features.
+ */
 export default function CharacterSheetScreen() {
+    /** Currently active top-level tab in the character sheet. */
     const [activeTab, setActiveTab] = useState<CharacterSheetTab>('Core');
     const router = useRouter();
     const {
@@ -141,10 +146,21 @@ export default function CharacterSheetScreen() {
                     currency={stats.currency}
                 />
             )}
+
+            {activeTab === 'Features' && (
+                <FeaturesTab
+                    className={character.class}
+                    race={character.race}
+                    background={character.background}
+                    features={character.features}
+                    traits={stats.traits}
+                />
+            )}
         </View>
     );
 }
 
+/** Styles for character sheet screen states and layout. */
 const styles = StyleSheet.create({
     container: {
         flex: 1,

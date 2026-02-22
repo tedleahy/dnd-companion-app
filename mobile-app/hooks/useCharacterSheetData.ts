@@ -23,6 +23,9 @@ import {
 import { isUnauthenticatedError } from '@/lib/graphqlErrors';
 import type { SkillKey } from '@/lib/characterSheetUtils';
 
+/**
+ * Mutation payload for optimistic skill proficiency updates.
+ */
 type UpdateSkillProficienciesMutationData = {
     updateSkillProficiencies: {
         __typename: 'CharacterStats';
@@ -31,11 +34,17 @@ type UpdateSkillProficienciesMutationData = {
     };
 };
 
+/**
+ * Variables for updating a character's skill proficiencies.
+ */
 type UpdateSkillProficienciesMutationVariables = {
     characterId: string;
     input: SkillProficienciesInput;
 };
 
+/**
+ * Spell slot shape used by cache update helpers.
+ */
 type CharacterSpellSlot = {
     __typename?: 'SpellSlot';
     id: string;
@@ -44,6 +53,9 @@ type CharacterSpellSlot = {
     used: number;
 };
 
+/**
+ * Spellbook row shape used by cache update helpers.
+ */
 type CharacterSpellbookEntry = {
     __typename?: 'CharacterSpell';
     prepared: boolean;
@@ -60,6 +72,9 @@ type CharacterSpellbookEntry = {
     };
 };
 
+/**
+ * Attack row shape returned for the character sheet.
+ */
 type CharacterAttack = {
     __typename?: 'Attack';
     id: string;
@@ -69,6 +84,9 @@ type CharacterAttack = {
     type: string;
 };
 
+/**
+ * Inventory row shape returned for the character sheet.
+ */
 type CharacterInventoryItem = {
     __typename?: 'InventoryItem';
     id: string;
@@ -80,6 +98,38 @@ type CharacterInventoryItem = {
     magical: boolean;
 };
 
+/**
+ * Feature row shape returned for the character sheet.
+ */
+type CharacterFeature = {
+    __typename?: 'CharacterFeature';
+    id: string;
+    name: string;
+    source: string;
+    description: string;
+    usesMax?: number | null;
+    usesRemaining?: number | null;
+    recharge?: string | null;
+};
+
+/**
+ * Traits metadata shape used by the Features tab.
+ */
+type CharacterTraits = {
+    __typename?: 'Traits';
+    personality: string;
+    ideals: string;
+    bonds: string;
+    flaws: string;
+    armorProficiencies?: string[] | null;
+    weaponProficiencies?: string[] | null;
+    toolProficiencies?: string[] | null;
+    languages?: string[] | null;
+};
+
+/**
+ * Currency shape used by the Gear tab.
+ */
 type CharacterCurrency = {
     __typename?: 'Currency';
     cp: number;
@@ -89,10 +139,20 @@ type CharacterCurrency = {
     pp: number;
 };
 
+/**
+ * Base generated character result from the current-user query.
+ */
 type BaseCharacter = CurrentUserCharactersQuery['currentUserCharacters'][number];
+/**
+ * Non-nullable stats row from the generated character result.
+ */
 type BaseCharacterStats = NonNullable<BaseCharacter['stats']>;
 
+/**
+ * Character query shape with explicit fields used by the character sheet UI.
+ */
 type CharacterWithSpells = Omit<BaseCharacter, 'stats'> & {
+    background: string;
     spellcastingAbility?: string | null;
     spellSaveDC?: number | null;
     spellAttackBonus?: number | null;
@@ -100,27 +160,46 @@ type CharacterWithSpells = Omit<BaseCharacter, 'stats'> & {
     spellbook: CharacterSpellbookEntry[];
     attacks: CharacterAttack[];
     inventory: CharacterInventoryItem[];
-    stats?: (BaseCharacterStats & { currency: CharacterCurrency }) | null;
+    features: CharacterFeature[];
+    stats?: (BaseCharacterStats & {
+        traits: CharacterTraits;
+        currency: CharacterCurrency;
+    }) | null;
 };
 
+/**
+ * Query result shape for current user characters with nested sheet data.
+ */
 type CurrentUserCharactersWithSpellsQuery = {
     currentUserCharacters: CharacterWithSpells[];
 };
 
+/**
+ * Mutation payload for toggling a spell slot.
+ */
 type ToggleSpellSlotMutationData = {
     toggleSpellSlot: CharacterSpellSlot;
 };
 
+/**
+ * Variables for toggling one spell-slot level.
+ */
 type ToggleSpellSlotMutationVariables = {
     characterId: string;
     level: number;
 };
 
+/**
+ * Shared variables for prepare/unprepare spell mutations.
+ */
 type SpellPreparedMutationVariables = {
     characterId: string;
     spellId: string;
 };
 
+/**
+ * Mutation payload when marking a spell as prepared.
+ */
 type PrepareSpellMutationData = {
     prepareSpell: {
         __typename: 'CharacterSpell';
@@ -132,6 +211,9 @@ type PrepareSpellMutationData = {
     };
 };
 
+/**
+ * Mutation payload when marking a spell as unprepared.
+ */
 type UnprepareSpellMutationData = {
     unprepareSpell: {
         __typename: 'CharacterSpell';
@@ -143,6 +225,9 @@ type UnprepareSpellMutationData = {
     };
 };
 
+/**
+ * Applies an optimistic spell slot usage value to the current character cache.
+ */
 function updateSpellSlotInCache(
     cache: ApolloCache,
     characterId: string,
@@ -172,6 +257,9 @@ function updateSpellSlotInCache(
     );
 }
 
+/**
+ * Applies an optimistic prepared flag to one spellbook entry in cache.
+ */
 function updateSpellPreparedInCache(
     cache: ApolloCache,
     characterId: string,
@@ -201,6 +289,9 @@ function updateSpellPreparedInCache(
     );
 }
 
+/**
+ * Loads character-sheet data and exposes optimistic mutation handlers.
+ */
 export default function useCharacterSheetData() {
     const { data, loading, error } = useQuery<CurrentUserCharactersWithSpellsQuery>(
         GET_CURRENT_USER_CHARACTERS,
@@ -238,6 +329,9 @@ export default function useCharacterSheetData() {
 
     const character = data?.currentUserCharacters?.[0] ?? null;
 
+    /**
+     * Optimistically toggles inspiration for the active character.
+     */
     const handleToggleInspiration = useCallback(() => {
         if (!character) return;
 
@@ -253,6 +347,9 @@ export default function useCharacterSheetData() {
         });
     }, [character, toggleInspiration]);
 
+    /**
+     * Optimistically updates death save successes/failures.
+     */
     const handleUpdateDeathSaves = useCallback((successes: number, failures: number) => {
         if (!character || !character.stats) return;
 
@@ -275,6 +372,9 @@ export default function useCharacterSheetData() {
         });
     }, [character, updateDeathSaves]);
 
+    /**
+     * Optimistically updates one skill proficiency level.
+     */
     const handleUpdateSkillProficiency = useCallback(async (
         skillKey: SkillKey,
         level: ProficiencyLevel,
@@ -306,6 +406,9 @@ export default function useCharacterSheetData() {
         }
     }, [character, updateSkillProficiencies]);
 
+    /**
+     * Cycles a spell slot level from used->used+1->reset.
+     */
     const handleToggleSpellSlot = useCallback(async (level: number) => {
         if (!character) return;
 
@@ -339,6 +442,9 @@ export default function useCharacterSheetData() {
         }
     }, [character, toggleSpellSlot]);
 
+    /**
+     * Sets prepared state for a spell with optimistic cache updates.
+     */
     const handleSetSpellPrepared = useCallback(async (spellId: string, prepared: boolean) => {
         if (!character) return;
 

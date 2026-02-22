@@ -34,6 +34,38 @@ const MOCK_CHARACTER = {
     spellSaveDC: 17,
     spellAttackBonus: 9,
     conditions: [] as string[],
+    features: [
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-1',
+            name: 'Arcane Recovery',
+            source: 'Wizard 1',
+            description: 'Recover spell slots on a long rest.',
+            usesMax: 1,
+            usesRemaining: 1,
+            recharge: 'long',
+        },
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-2',
+            name: 'Darkvision',
+            source: 'High Elf',
+            description: 'See in dim light and darkness within 60 feet.',
+            usesMax: null,
+            usesRemaining: null,
+            recharge: null,
+        },
+        {
+            __typename: 'CharacterFeature',
+            id: 'feature-3',
+            name: 'War Caster',
+            source: 'Feat',
+            description: 'Advantage on concentration checks.',
+            usesMax: null,
+            usesRemaining: null,
+            recharge: null,
+        },
+    ],
     attacks: [
         {
             __typename: 'Attack',
@@ -200,6 +232,17 @@ const MOCK_CHARACTER = {
             total: 12,
             remaining: 12,
             die: 'd6',
+        },
+        traits: {
+            __typename: 'Traits',
+            personality: 'Always collecting obscure magical lore.',
+            ideals: 'Knowledge should be preserved.',
+            bonds: 'My spellbook is my life.',
+            flaws: 'I underestimate danger when magic is involved.',
+            armorProficiencies: [],
+            weaponProficiencies: ['Daggers', 'Darts', 'Slings', 'Quarterstaffs'],
+            toolProficiencies: [],
+            languages: ['Common', 'Elvish', 'Draconic'],
         },
         savingThrowProficiencies: ['intelligence', 'wisdom'],
         skillProficiencies: {
@@ -658,6 +701,28 @@ describe('CharacterSheetScreen', () => {
         expect(screen.getByText('Backpack')).toBeTruthy();
         expect(screen.getByText('+ Add Item')).toBeTruthy();
         expect(screen.queryByText('Encumbrance')).toBeNull();
+    });
+
+    it('switches to the Features tab and shows feature sections', async () => {
+        renderScreen();
+
+        await waitFor(() => {
+            expect(screen.getByLabelText('Open Features tab')).toBeTruthy();
+        });
+        fireEvent.press(screen.getByLabelText('Open Features tab'));
+
+        await waitFor(() => {
+            expect(screen.getByText('Class Features')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Arcane Recovery')).toBeTruthy();
+        expect(screen.getByText('Racial Traits')).toBeTruthy();
+        expect(screen.getByText('Darkvision')).toBeTruthy();
+        expect(screen.getByText('Feats')).toBeTruthy();
+        expect(screen.getByText('War Caster')).toBeTruthy();
+        expect(screen.getByText('Personality & Background')).toBeTruthy();
+        expect(screen.getByText('Proficiencies & Languages')).toBeTruthy();
+        expect(screen.getByText('Common')).toBeTruthy();
     });
 
     it('updates spell slot count optimistically when a slot pip is pressed', async () => {
